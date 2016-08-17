@@ -21,7 +21,7 @@ import argparse
 
 ###
 
-def blast_mode(args):
+def main():
 	if blast_mode is not None:	# Test for blast-mode
 		conv_fasta = SeqIO.convert(genbank, 'genbank', genbank[:-3] +'tmp', 'fasta')
 		blastdb = "makeblastdb -in tmp.fasta -dbtype 'nucl' -title genbank[:-3] +'db'"
@@ -38,12 +38,8 @@ def blast_mode(args):
 		dbresult = SearchIO.read({record}.blastout, 'blast-tab')
 		index_start = dbresult.colx
 		index_end = dbresult.coly
-	else:
-		continue	
-	SeqIO.read(genbank, 'genbank')
-
-
-def slice(args):
+	else:	
+		SeqIO.read(genbank, 'genbank')
 	if index_start is None or index_end is  None:
 		print('No slice indices have been specified or retrieved from blastout')
 		sys.exit(0)
@@ -51,7 +47,6 @@ def slice(args):
 		print("Slicing " + filename + " from " + str(index_start) + " to " + str(index_end))
 		sub_record = genbank[start:end]
 		SeqIO.write(sub_record, outfile, "genbank")
-
 
 if __name__ == '__main__':
 	try:
@@ -83,6 +78,6 @@ if __name__ == '__main__':
 		index_end = args.end
 		query = args.fasta
 		blast_mode = args.blast_mode
+		print args
 	except:
-		print(Some issue)
-		return genbank, outfile, filename, index_start, index_end, blast_mode, query, record
+		print "Issues with provided args."
