@@ -18,6 +18,7 @@ from subprocess import call
 import os
 import sys
 import argparse
+import traceback
 
 ###
 
@@ -81,3 +82,4 @@ if __name__ == '__main__':
 		print args
 	except:
 		print "Issues with provided args."
+		traceback.pring_exc()
