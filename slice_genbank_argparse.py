@@ -83,4 +83,6 @@ if __name__ == '__main__':
 		index_end = args.end
 		query = args.fasta
 		blast_mode = args.blast_mode
+	except:
+		print(Some issue)
 		return genbank, outfile, filename, index_start, index_end, blast_mode, query, record
