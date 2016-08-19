@@ -116,9 +116,7 @@ def main():
                         	SeqIO.write(sub_record, args.outfile, "genbank")
 			else:
 				print(sub_record.format('genbank'))
-#	if args.tidy is True:
-#		os.remove(ref_fasta)
-#		os.remove(result_handle)
+
 
 if __name__ == "__main__":
 	main()
