@@ -5,8 +5,6 @@
 # Usage:
 bash find_by_list.sh [listfile] [directory_to_search] [directory_to_copy_to]
 
-command -v bwa >/dev/null 2>&1 || { echo >&2 "BWA doesn't appear to be installed. Aborting."; exit 1; }
-
 # Capture inputs
 
 usage()
