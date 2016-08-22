@@ -65,12 +65,6 @@ def main():
 			'--fasta',\
 			action='store',\
 			help='The operon fasta to pull annotations from the provided genbank.')
-		parser.add_argument(
-			'-t',\
-			'--tidy',\
-			action='store_false',\
-			default=True,\
-			help='Force the script to clean up after itself, removing temporary files.')
 		args = parser.parse_args()
 	except:
 		print "An exception occured with argument parsing. Check your provided options."
