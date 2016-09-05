@@ -19,7 +19,6 @@
 
 from Bio import SeqIO
 from Bio import SearchIO
-import os
 import subprocess
 import sys
 import argparse
@@ -70,7 +69,7 @@ def main():
 		print "An exception occured with argument parsing. Check your provided options."
 		traceback.print_exc()
 
-###################################################################################################
+
 
 # Main code:
 	if args.blast_mode is not False:
@@ -79,15 +78,12 @@ def main():
 		ref_fasta = "{}.fasta.tmp".format(basename)
 		result_handle = "{}.blastout.tmp".format(basename)
                 SeqIO.convert(args.genbank, 'genbank', ref_fasta, 'fasta')
-                # Test for dependencies (note, this only works on *NIX for now)
-		which_blastdb = subprocess.call(['which', 'makeblastdb'], shell=True)
-		which_blastn = subprocess.call(['which', 'blastn'], shell=True)
 		blastdb_cmd = 'makeblastdb -in {0} -dbtype nucl -title temp_blastdb'.format(ref_fasta)
 		blastn_cmd = 'blastn -query {0} -strand both -task blastn -db {1} -perc_identity 100 -outfmt 6 -out {2} -max_target_seqs 1'.format(args.fasta, ref_fasta, result_handle)
 		print("Constructing BLAST Database: " + blastdb_cmd)
 		print("BLASTing: " + blastn_cmd)
-		os.system(blastdb_cmd)
-		os.system(blastn_cmd)	
+		subprocess.Popen(blastdb_cmd,shell=True,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+		subprocess.Popen(blastn_cmd,shell=True,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 		blast_result = SearchIO.read(result_handle, 'blast-tab')
 		print(blast_result[0][0])
 		args.start = blast_result[0][0].hit_start
@@ -114,3 +110,4 @@ def main():
 
 if __name__ == "__main__":
 	main()
+
