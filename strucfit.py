@@ -161,17 +161,18 @@ def main():
 			if filename.startswith(basename):
 				model_list.append(os.path.join(root, filename))
 
-	print("\n")
-	print("Found the following models:")
-	print("---------------------------")
-	for model_path in model_list:
-		locus_dir = os.path.dirname(os.path.abspath(model_path))
-		print("Found: " + os.path.basename(model_path) + " in " + locus_dir)
-	print("Tidying up...")
-
-	hhresult_move = os.path.join(locus_dir,hhresult_file)
-	os.rename(hhresult_file, '{0}'.format(hhresult_move))
-
+	if not model_list:
+		print("No protein structures were found that match that fasta name.")
+		sys.exit(1)
+	else:	
+		print("\n")
+		print("Found the following models:")
+		print("---------------------------")
+		for model_path in model_list:
+			locus_dir = os.path.dirname(os.path.abspath(model_path))
+			print("Found: " + os.path.basename(model_path) + " in " + locus_dir)
+	
+	
 	# Get reference structure from PDB
 	print("\n")
 	print("Beginning Chimera:")
