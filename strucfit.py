@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/home/wms_joe/bin/miniconda2/bin/python
 """
 This script pulls in homologs of proteins from PDB
 as determined by HHSuite. It then employs UCSF Chimera to
@@ -12,6 +12,8 @@ import argparse
 import traceback
 import warnings
 import fnmatch
+import pandas as pd
+from io import StringIO
 
 import pychimera
 
@@ -26,6 +28,30 @@ from MatchMaker import (match,
 						MATRIX,
 						ITER_CUTOFF)
 
+# HHSuite output parser/template
+
+template = \
+u"""
+---|------|------------------------|----|-------|-------|------|-----|----|---------|--------------|
+ No Hit                             Prob E-value P-value  Score    SS Cols Query HMM  Template HMM
+"""
+
+def hhparse(hhresult_file):
+    pattern = StringIO(template).readlines()[1]
+    colBreaks = [i for i, ch in enumerate(pattern) if ch == '|']
+    widths = [j-i for i, j in zip( ([0]+colBreaks)[:-1], colBreaks ) ]
+
+    hhtable = pd.read_fwf(hhresult_file, skiprows=8, nrows=10, header=0, widths = widths)
+    print(hhtable.dtypes)
+    print(hhtable)
+
+    top_hit = str(hhtable.loc[0,'Hit'])[0:4]
+    top_prob = hhtable.loc[0,'Prob']
+    top_eval = hhtable.loc[0,'E-value']
+    top_pval = hhtable.loc[0,'P-value']
+    top_score = hhtable.loc[0,'Score']
+
+    return top_hit, top_prob, top_eval, top_pval, top_score
 
 # If running using python interpreter and not pychimera:
 # os.environ['CHIMERADIR'] = '/home/wms_joe/Applications/CHIMERA1.11'
@@ -120,11 +146,11 @@ def main():
 
 	# Run the HHsearch
 	if args.fasta is not None and args.database is not None:
+		print(sys.path)
 		print("\n")
-		print("Running " + args.fasta + " in HHsearch, against " + args.database + " on " + args.threads + " threads.")
-		hhresult_file = './{0}.hhr.fasta'.format(basename)
-		hhr_file = './{0}.hhr'.format(basename)
-		search_cmd = 'hhsearch -dbstrlen 50 -B 1 -b 1 -p 60 -Z 1 -E 1E-03 -nocons -nopred -nodssp -Ofas {3} -cpu {0} -i {1} -d {2}'.format(args.threads,args.fasta, args.database, hhresult_file)
+		print("Running " + args.fasta + " in HHsearch, against " + args.database + " on " + str(args.threads) + " threads.")
+		hhresult_file = './{0}.hhr'.format(basename)
+		search_cmd = 'hhsearch -dbstrlen 50 -B 1 -b 1 -p 60 -Z 1 -E 1E-03 -nocons -nopred -nodssp -cpu {0} -i {1} -d {2}'.format(args.threads,args.fasta, args.database)
 		print("\n")
 		print("Executing HHsearch with the command:")
 		print(search_cmd)
@@ -139,18 +165,12 @@ def main():
 		print("No fasta or database has been detected. Check your input parameters.")
 		sys.exit(1)
 
-	# Parse HHpred output fasta and acquire the best hit
+	# Parse HHpred output and acquire the best hit
 
-	headers = []
-	with open(hhresult_file) as result_fasta:
-		for line in result_fasta:
-			if line.startswith(">"):
-				line = line.split("_")[0]
-				headers.append(line.replace(">",""))
+        top_hit, top_prob, top_eval, top_pval, top_score = hhparse(hhresult_file)
+        print("Your best hit: (PDB ID | Probability | E-Value | P-Value | Score)")
+        print("\t" +  str(top_hit) + "\t" + str(top_prob) + "\t" + str(top_eval) + "\t" + str(top_pval) + "\t" + str(top_score) )
 
-	top_hit = headers[1] # HHpred puts the query seq in index 0, so 1 is your top hit.
-	print("Your best hit was the PDB id:")
-	print(top_hit + "\n")
 	print("Full results are found in: " + hhresult_file)
 
 	# Acquire the protein simulations
@@ -162,17 +182,17 @@ def main():
 				model_list.append(os.path.join(root, filename))
 
 	if not model_list:
-		print("No protein structures were found that match that fasta name.")
+		print("No protein structures were found matching: " + basename)
 		sys.exit(1)
-	else:	
+	else:
 		print("\n")
 		print("Found the following models:")
 		print("---------------------------")
 		for model_path in model_list:
 			locus_dir = os.path.dirname(os.path.abspath(model_path))
 			print("Found: " + os.path.basename(model_path) + " in " + locus_dir)
-	
-	
+
+
 	# Get reference structure from PDB
 	print("\n")
 	print("Beginning Chimera:")
@@ -205,7 +225,13 @@ def main():
 			sim_mol = atoms1[0].molecule
 
 			print(ref_mol.name + "\t" + sim_mol.name + "\t" + str(rmsd))
-			rmsd_output_file.write(ref_mol.name + "\t" + sim_mol.name + "\t" + str(rmsd) + "\n")
+			rmsd_output_file.write(ref_mol.name + "\t" \
+                                    + sim_mol.name + "\t" \
+                                    + str(rmsd) + "\t" \
+                                    + str(top_prob) + "\t" \
+                                    + str(top_eval) + "\t" \
+                                    + str(top_pval) + "\t" \
+                                    + str(top_score) + "\n")
 
  	rc('save {0}_session.py'.format(joint_path))
 	chimera.closeSession()
