@@ -54,7 +54,7 @@ def main():
 	# Rename args to enable them to be provided to the getKeys function:
 	keyFile = args.keys
 	inFile = args.infile
-
+	outFile = args.outfile
 # Main code:
 	# Call getKeys() to create the tuple of keys from the provided file:
 	keys = getKeys(keyFile)
@@ -71,8 +71,9 @@ def main():
 	for seq in seqIter:
 		if seq.id in keys:
 			print(seq.format("fasta"))
-
-#	SeqIO.write((seq for seq in seqIter if seq.id in keys), sys.stdout, "fasta")
+		if args.outfile is not None:
+			SeqIO.write(seq, outFile, "fasta")
+	
 
 if __name__ == "__main__":
 	main()

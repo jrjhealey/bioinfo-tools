@@ -2,7 +2,6 @@
 
 # Script to parse orthoMCL/orthAgogue gene clusters and extract just those that are core
 
-import re
 import sys
 import argparse
 import traceback
@@ -12,9 +11,9 @@ import warnings
 
 # Get a tuple of strings to iterate over 
 def getKeys(nameFile):
-	with open(nameFile, "r") as namehandle:
+	with open(nameFile, "r") as nameHandle:
 		names = []
-    		for line in namehandle:
+    		for line in nameHandle:
 	        	strip = line.rstrip('\n')
 			names.append(strip)
         
