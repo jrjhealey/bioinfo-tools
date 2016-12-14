@@ -121,7 +121,7 @@ makeblastdb -in $reference -dbtype 'nucl' -title $database -out ${outdir%/}/${da
 echo "Database created."
 
 # Step 2: Perform the all-vs-all BLAST using the query sequence and reference database.
-blastn -db $database -query $query -outfmt 6 -out ${outdir%/}/${query%.*}_vs_${reference%.*}.act
+blastn -db ${outdir%/}/${database} -query $query -outfmt 6 -out ${outdir%/}/${query%.*}_vs_${reference%.*}.act
 
 echo "All finished! The comparion file is called:"
 echo "${query%.*}_vs_${reference%/*}.act"
