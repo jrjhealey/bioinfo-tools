@@ -69,9 +69,14 @@ def main():
 	keys = getKeys(keyFile)
 
 	if args.verbose is not False:
-		print('Fetching the following keys from: ' + inFile)
-		for key in keys:
-			print(key)
+		if args.invert is False:
+			print('Fetching the following keys from: ' + inFile)
+			for key in keys:
+				print(key)
+		else:
+			print('Ignoring the following keys, and retreiving everything else from: ' + inFile)
+			for key in keys:
+				print(key)
 
 	# Parse in the multifasta and assign an iterable variable:
         seqIter = SeqIO.parse(inFile, 'fasta')
