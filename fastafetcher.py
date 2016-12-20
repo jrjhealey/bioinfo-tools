@@ -2,7 +2,7 @@
 # Extract fasta files by their descriptors stored in a separate file.
 # Requires biopython
 
-
+import StringIO
 from Bio import SeqIO
 import sys
 import traceback
@@ -66,7 +66,11 @@ def main():
 	outFile = args.outfile
 # Main code:
 	# Call getKeys() to create the tuple of keys from the provided file:
-	keys = getKeys(keyFile)
+	try:
+		keys = getKeys(keyFile)
+	except IOError:
+		keys = args.keys
+
 
 	if args.verbose is not False:
 		if args.invert is False:
