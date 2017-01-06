@@ -10,7 +10,7 @@ import warnings
 import argparse
 
 def getKeys(keyFile):
-	"""Turns the input key file into a tuple. May be memory intensive."""
+	"""Turns the input key file into a list. May be memory intensive for large lists."""
 
 	with open(keyFile, "r") as kfh:
 		keys = []
@@ -65,9 +65,11 @@ def main():
 	inFile = args.fasta
 	outFile = args.outfile
 # Main code:
-	# Call getKeys() to create the tuple of keys from the provided file:
+	# Call getKeys() to create the list of keys from the provided file:
 	try:
 		keys = getKeys(keyFile)
+	# If the keys argument was a string not a file of keys, catch the file IO read error
+	# to then use as the cue to assign the string directly to keys
 	except IOError:
 		keys = args.keys
 
