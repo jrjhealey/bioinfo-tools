@@ -4,7 +4,7 @@ Just a collection of (often poor) scripts to do various bits of bioinformatics s
 *Disclaimer, not all of these were written by me, they just happen to be useful. Some are based on examples available online and modified. Some are also not actually functional scripts - just little reminders of commands I've used that did something useful (often long one liners I might want again).
 
 
-# One liners (shamelessly stolen from https://github.com/onceupon/Bash-Oneliner/blob/master/README.md)
+* Some One liners (shamelessly stolen from https://github.com/onceupon/Bash-Oneliner/blob/master/README.md)
 
 # Bash-Oneliner
 Hi bash learners and bioinformaticans, welcome to Bash Oneliner learning station. I started studying bioinformatics data three years ago, and I was amazed by those single-word bash commands which are much faster than my dull scripts, so i started bash. Not all the code here is oneliner (if the ';' counts..), but i put effort on making them brief and fast. 
