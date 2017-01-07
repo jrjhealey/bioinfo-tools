@@ -1,5 +1,5 @@
 # Usage:
-# python splitgenbank.py multigenbank.gbk
+# python extractfeatures.py infile.gbk outfile.faa
 
 from Bio import SeqIO
 import sys
