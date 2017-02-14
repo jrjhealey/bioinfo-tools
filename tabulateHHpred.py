@@ -83,14 +83,17 @@ def main():
 
 	verbose = args.verbose
 	hhresult_file = args.infile
-	outfile = args.outfile
+	
+	indir = os.path.dirname(hhresult_file)
 
 	split = os.path.splitext(args.infile)
 	basename = os.path.basename(split[0])
 
-	if outfile is 'None':
-		outfile = basename + '.tsv'
-	
+	if args.outfile is 'None':
+		outfile = indir+ '/' + basename + '.tsv'
+	else:
+		outfile = args.outfile
+
 # Main code begins:
 	
 	top_hit, top_hit_full, top_prob, top_eval, top_pval, top_score = hhparse(hhresult_file, verbose)
@@ -98,9 +101,9 @@ def main():
 
 	
 	with open(outfile, 'w') as ofh:
-		ofh.write(str(top_hit) + "\t" + str(top_hit_full) + "\t" + str(top_prob) + "\t" + str(top_eval) + "\t" + str(top_pval) + "\t" + str(top_score) + "\t" + full_desc )
+		ofh.write(basename + "\t" + str(top_hit) + "\t" + str(top_hit_full) + "\t" + str(top_prob) + "\t" + str(top_eval) + "\t" + str(top_pval) + "\t" + str(top_score) + "\t" + full_desc )
 
-	print str(top_hit) + "\t" + str(top_hit_full) + "\t" + str(top_prob) + "\t" + str(top_eval) + "\t" + str(top_pval) + "\t" + str(top_score) + "\t" + full_desc
+	print(basename + "\t" + str(top_hit) + "\t" + str(top_hit_full) + "\t" + str(top_prob) + "\t" + str(top_eval) + "\t" + str(top_pval) + "\t" + str(top_score) + "\t" + full_desc)
 
 
 
