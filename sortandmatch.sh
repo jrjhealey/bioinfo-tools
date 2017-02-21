@@ -19,7 +19,7 @@ OPTIONS:
    -k | --keyfile	A file specifying the desired order (a column of strings
 			which will be common to both files).
    -i | --infile	The file you wish to sort.
-   -f | --field		The field you wish to sort based upon in the keyfile [def = 1].
+   -f | --field		The field you wish to sort based upon in the keyfile. Also the column to join upon [def = 1].
 EOF
 }
 
@@ -83,4 +83,5 @@ fi
 
 paste "$keyfile" <(awk -v field="$indexfield" 'NR==FNR{o[FNR]=$field; next} {t[$1]=$0} END{for(x=1; x<=FNR; x++){y=o[x]; print t[y]}}' "$keyfile" "$infile") | cut --complement -f "$indexfield"
 
-
+# Similar results can be achieved with join, so it's left here as a reminder for myself
+# join -1 "$indexfield" -2 1 PVC_numbering_keyfile <(awk -v field="$indexfield" 'NR==FNR{o[FNR]=$field; next} {t[$1]=$0} END{for(x=1; x<=FNR; x++){y=o[x]; print t[y]}}' "$keyfile" "$infile")
