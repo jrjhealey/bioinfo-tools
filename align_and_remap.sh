@@ -32,19 +32,20 @@ for arg in "$@"; do
   		"--help")
 		set -- "$@" "-h"
 		;;
-    	"--ref")
+	    	"--ref")
     		set -- "$@" "-r"
 		;;
    		"--read1")
     		set -- "$@" "-1"
     		;;
-    	"--read2")
+    		"--read2")
        		set -- "$@" "-2"
        		;;
-    	*)
-			set -- "$@" "$arg"
+    		*)
+		set -- "$@" "$arg"
   esac
 done
+
 # getopts assigns the arguments to variables
 while getopts "hr:1:2:" OPTION
 do
