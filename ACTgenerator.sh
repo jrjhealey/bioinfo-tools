@@ -3,12 +3,12 @@
 # A small script to generate artemis comparison files (nucleic acid comparison)
 # since all the webservers are apparently defunct!
 
-# Script requires blastn (NOT LEGACY BLAST)  and makeblastdb in path - check for existence:
+# Script requires blastn (NOT LEGACY BLAST) and makeblastdb in path - check for existence:
 
 command -v makeblastdb >/dev/null 2>&1 || { echo >&2 "makeblastdb doesn't appear to be installed. Aborting."; exit 1; }
 command -v blastn >/dev/null 2>&1 || { echo >&2 "BLAST+ doesn't appear to be installed. Aborting."; exit 1; }
-# Capture inputs
 
+# Capture inputs
 usage()
 {
 cat << EOF
@@ -101,29 +101,28 @@ if [[ -z $outdir ]]; then
 	pwd
 fi
 
+# Switch long options to short for tidy:
 if [ $tidy == "True" ]; then
  tidy="T"
  else
   if [ $tidy == "False" ] || [ -z $tidy ]; then
-  tidy="F"
+   tidy="F"
   fi
 fi
-
-
 
 #####
 
 # Step 1: Make a BLAST database of the reference sequence:
 
-echo -en Executing command with arguments: '\n' Reference - $reference '\n' Database - $database '\n' Query sequence - $query '\n'
+echo -en Executing command with arguments: '\n' Reference - "$reference" '\n' Database - "$database" '\n' Query sequence - "$query" '\n'
 
-makeblastdb -in $reference -dbtype 'nucl' -title $database -out ${outdir%/}/${database} -parse_seqids
-echo "Database created."
+makeblastdb -in "$reference" -dbtype 'nucl' -title "$database" -out "${outdir%/}"/"${database}" -parse_seqids
+echo 'Database created.'
 
 # Step 2: Perform the all-vs-all BLAST using the query sequence and reference database.
-blastn -db ${outdir%/}/${database} -query $query -outfmt 6 -out ${outdir%/}/${query%.*}_vs_${reference%.*}.act
+blastn -db "${outdir%/}"/"${database}" -query "$query" -outfmt 6 -out "${outdir%/}"/"${query%.*}"_vs_"${reference%.*}".act
 
-echo "All finished! The comparion file is called:"
+echo 'All finished! The comparion file is called:'
 echo "${query%.*}_vs_${reference%/*}.act"
 
 if [ $tidy == "T" ]; then
