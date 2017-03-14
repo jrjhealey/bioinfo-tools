@@ -24,6 +24,7 @@
 # If not, see <http://www.gnu.org/licenses/>.
 
 __author__ = "Marco Galardini"
+# Modified by J Healey
 __version__ = '0.1.0'
 
 def get_options():
