@@ -24,9 +24,6 @@
 # If not, see <http://www.gnu.org/licenses/>.
 
 __author__ = "Marco Galardini"
-
-# Modified by J Healey
-
 __version__ = '0.1.0'
 
 def get_options():
@@ -66,9 +63,9 @@ def get_options():
     parser.add_argument('-c',
 			'--column',
 			action='store',
-			default=9,
+			default=10,
 			type=int,
-			help='Specify column  where taxa IDs start in the presence/absence file [Default: 9]')
+			help='Specify column  where taxa IDs start in the presence/absence file [Default: 10]')
 
     parser.add_argument('--version', action='version',
                          version='%(prog)s '+__version__)
