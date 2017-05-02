@@ -79,6 +79,18 @@ def getFullDesc(hhresult_file,top_hit_full, verbose):
 
 	return full_desc
 
+def getDOI(top_hit):
+	"""Query the PDB REST API to get an associated DOI/Publication"""
+	import requests
+
+	query = requests.get("https://www.ebi.ac.uk/pdbe/api/pdb/entry/publications/" + top_hit)
+	qjson = query.json()
+	doi = qjson[top_hit][0]['doi'])
+
+	if not doi:
+		doi = "No DOI found."
+	return doi
+
 def displayRefs():
     """Display relevant references"""
     print('''
@@ -165,12 +177,12 @@ def main():
 	
 	top_hit, top_hit_full, top_prob, top_eval, top_pval, top_score = hhparse(hhresult_file, verbose)
 	full_desc = getFullDesc(hhresult_file, top_hit_full, verbose)
-
+	doi = getDOI(top_hit)
 	
 	with open(outfile, 'w') as ofh:
-		ofh.write(basename + "\t" + str(top_hit) + "\t" + str(top_hit_full) + "\t" + str(top_prob) + "\t" + str(top_eval) + "\t" + str(top_pval) + "\t" + str(top_score) + "\t" + full_desc )
+		ofh.write(basename + "\t" + str(top_hit) + "\t" + str(top_hit_full) + "\t" + str(top_prob) + "\t" + str(top_eval) + "\t" + str(top_pval) + "\t" + str(top_score) + "\t" + full_desc + '\t' + doi)
 
-	print(basename + "\t" + str(top_hit) + "\t" + str(top_hit_full) + "\t" + str(top_prob) + "\t" + str(top_eval) + "\t" + str(top_pval) + "\t" + str(top_score) + "\t" + full_desc)
+	print(basename + "\t" + str(top_hit) + "\t" + str(top_hit_full) + "\t" + str(top_prob) + "\t" + str(top_eval) + "\t" + str(top_pval) + "\t" + str(top_score) + "\t" + full_desc + '\t' + doi)
 
 
 
