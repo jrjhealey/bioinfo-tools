@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 """
 This script takes the .hhr files output by HHSuite and
@@ -35,18 +36,18 @@ __title__ = "tabulateHHpred"
 __license__ = "GPLv3"
 __author_email__ = "J.R.J.Healey@warwick.ac.uk"
 
+template = \
+u"""
+---|------|------------------------|----|-------|-------|------|-----|----|---------|--------------|
+ No Hit    Short Desc               Prob E-value P-value  Score    SS Cols Query HMM  Template HMM
+"""
+
 
 def hhparse(hhresult_file, verbose):
 	'''Convert HHpred's text-based output table in to a pandas dataframe'''
 	from io import StringIO
 	import pandas as pd
 
-	template = \
-	u"""
-	---|------|------------------------|----|-------|-------|------|-----|----|---------|--------------|
-	 No Hit    Short Desc               Prob E-value P-value  Score    SS Cols Query HMM  Template HMM
-	"""
-	
 	pattern = StringIO(template).readlines()[1]
 	colBreaks = [i for i, ch in enumerate(pattern) if ch == '|']
 	widths = [j-i for i, j in zip( ([0]+colBreaks)[:-1], colBreaks ) ]
@@ -72,7 +73,7 @@ def getFullDesc(hhresult_file,top_hit_full, verbose):
 	with open(hhresult_file, 'r') as hrh:
 		for line in hrh:
 			if line.startswith('>' + top_hit_full):
-				full_desc = line
+				full_desc = line.rstrip('\n')
 
 	if verbose is True:
 		print full_desc
@@ -83,9 +84,9 @@ def getDOI(top_hit):
 	"""Query the PDB REST API to get an associated DOI/Publication"""
 	import requests
 
-	query = requests.get("https://www.ebi.ac.uk/pdbe/api/pdb/entry/publications/" + top_hit)
+	query = requests.get("https://www.ebi.ac.uk/pdbe/api/pdb/entry/publications/" + str(top_hit))
 	qjson = query.json()
-	doi = qjson[top_hit][0]['doi'])
+	doi = qjson[top_hit][0]['doi']
 
 	if not doi:
 		doi = "No DOI found."
@@ -163,7 +164,7 @@ def main():
 	verbose = args.verbose
 	hhresult_file = args.infile
 	
-	indir = os.path.dirname(hhresult_file)
+	indir = os.path.dirname(os.path.abspath(hhresult_file))
 
 	split = os.path.splitext(args.infile)
 	basename = os.path.basename(split[0])
