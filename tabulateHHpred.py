@@ -83,13 +83,17 @@ def getFullDesc(hhresult_file,top_hit_full, verbose):
 def getDOI(top_hit):
 	"""Query the PDB REST API to get an associated DOI/Publication"""
 	import requests
+	try:
+		query = requests.get("https://www.ebi.ac.uk/pdbe/api/pdb/entry/publications/" + str(top_hit))
+		qjson = query.json()
+		doi = qjson[top_hit][0]['doi']
 
-	query = requests.get("https://www.ebi.ac.uk/pdbe/api/pdb/entry/publications/" + str(top_hit))
-	qjson = query.json()
-	doi = qjson[top_hit][0]['doi']
+		if not doi:
+			doi = "No DOI found."
 
-	if not doi:
-		doi = "No DOI found."
+	except KeyError:
+		doi = "Key error. ID likely deprecated."
+
 	return doi
 
 def displayRefs():
@@ -181,9 +185,9 @@ def main():
 	doi = getDOI(top_hit)
 	
 	with open(outfile, 'w') as ofh:
-		ofh.write(basename + "\t" + str(top_hit) + "\t" + str(top_hit_full) + "\t" + str(top_prob) + "\t" + str(top_eval) + "\t" + str(top_pval) + "\t" + str(top_score) + "\t" + full_desc + '\t' + doi)
+		ofh.write(basename + "\t" + str(top_hit) + "\t" + str(top_hit_full) + "\t" + str(top_prob) + "\t" + str(top_eval) + "\t" + str(top_pval) + "\t" + str(top_score) + "\t" + full_desc + '\t' + doi + '\n')
 
-	print(basename + "\t" + str(top_hit) + "\t" + str(top_hit_full) + "\t" + str(top_prob) + "\t" + str(top_eval) + "\t" + str(top_pval) + "\t" + str(top_score) + "\t" + full_desc + '\t' + doi)
+	print(basename + "\t" + str(top_hit) + "\t" + str(top_hit_full) + "\t" + str(top_prob) + "\t" + str(top_eval) + "\t" + str(top_pval) + "\t" + str(top_score) + "\t" + full_desc + '\t' + doi + '\n')
 
 
 
