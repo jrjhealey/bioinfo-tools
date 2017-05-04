@@ -131,7 +131,6 @@ def parseArgs():
 			'-i',
 			'--infile',
 			action='store',
-			required=True,
 			help='The HHpred output file to parse.')
 		parser.add_argument(
 			'-v',
@@ -149,7 +148,11 @@ def parseArgs():
 			'--bibliography',
 			action='store_true',
 			help='Display references.')
-							
+		parser.add_argument(
+			'-d',
+			'--nodoi',
+			action='store_false',
+			help='Try to retrieve relevant publications from PDB RESTful API. Warning, this will significantly slow down the processing of results. On by default.')							
 		args = parser.parse_args()
 		
 	except:
@@ -182,7 +185,9 @@ def main():
 	
 	top_hit, top_hit_full, top_prob, top_eval, top_pval, top_score = hhparse(hhresult_file, verbose)
 	full_desc = getFullDesc(hhresult_file, top_hit_full, verbose)
-	doi = getDOI(top_hit)
+	
+	if args.nodoi is False:
+		doi = getDOI(top_hit)
 	
 	with open(outfile, 'w') as ofh:
 		ofh.write(basename + "\t" + str(top_hit) + "\t" + str(top_hit_full) + "\t" + str(top_prob) + "\t" + str(top_eval) + "\t" + str(top_pval) + "\t" + str(top_score) + "\t" + full_desc + '\t' + doi + '\n')
