@@ -150,9 +150,9 @@ def parseArgs():
 			help='Display references.')
 		parser.add_argument(
 			'-d',
-			'--nodoi',
-			action='store_false',
-			help='Try to retrieve relevant publications from PDB RESTful API. Warning, this will significantly slow down the processing of results. On by default.')							
+			'--doi',
+			action='store_true',
+			help='Try to retrieve relevant publications from PDB RESTful API. Warning, this will significantly slow down the processing of results.')
 		args = parser.parse_args()
 		
 	except:
@@ -186,14 +186,20 @@ def main():
 	top_hit, top_hit_full, top_prob, top_eval, top_pval, top_score = hhparse(hhresult_file, verbose)
 	full_desc = getFullDesc(hhresult_file, top_hit_full, verbose)
 	
-	if args.nodoi is False:
+	row = (basename + "\t" + str(top_hit) + "\t" + str(top_hit_full) + "\t" + str(top_prob) + "\t" + str(top_eval) + "\t" + str(top_pval) + "\t" + str(top_score) + "\t" + full_desc + "\n")
+
+	if args.doi is True:
 		doi = getDOI(top_hit)
-	
-	with open(outfile, 'w') as ofh:
-		ofh.write(basename + "\t" + str(top_hit) + "\t" + str(top_hit_full) + "\t" + str(top_prob) + "\t" + str(top_eval) + "\t" + str(top_pval) + "\t" + str(top_score) + "\t" + full_desc + '\t' + doi + '\n')
+		row = (row.rstrip("\n") + "\t" + doi + "\n")
+		
+		with open(outfile, 'w') as ofh:
+			ofh.write(row)
+		print(row)
 
-	print(basename + "\t" + str(top_hit) + "\t" + str(top_hit_full) + "\t" + str(top_prob) + "\t" + str(top_eval) + "\t" + str(top_pval) + "\t" + str(top_score) + "\t" + full_desc + '\t' + doi + '\n')
-
+	elif args.doi is False:
+		with open(outfile, 'w') as ofh:
+			ofh.write(row)
+		print(row)
 
 
 if __name__ == '__main__':
