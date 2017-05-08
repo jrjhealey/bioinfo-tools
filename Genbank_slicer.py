@@ -19,10 +19,14 @@
 
 from Bio import SeqIO
 from Bio import SearchIO
-import subprocess
+import warnings
+from Bio import BiopythonExperimentalWarning
+warnings.simplefilter('ignore', BiopythonExperimentalWarning)
+
 import sys
-import argparse
 import os
+import subprocess
+
 		
 def convert(basename, genbank):
 	'''Convert the provided genbank to a fasta to BLAST.'''
@@ -34,7 +38,7 @@ def convert(basename, genbank):
 
 def runBlast(basename, refFasta, fasta):
 	'''Synthesise BLAST commands and make system calls'''
-	
+
 	resultHandle = "{}.blastout.tmp".format(basename)
 	blastdb_cmd = 'makeblastdb -in {0} -dbtype nucl -title temp_blastdb'.format(refFasta)
 	blastn_cmd = 'blastn -query {0} -strand both -task blastn -db {1} -perc_identity 100 -outfmt 6 -out {2} -max_target_seqs 1'.format(fasta, refFasta, resultHandle)
@@ -50,7 +54,10 @@ def runBlast(basename, refFasta, fasta):
 def getIndices(resultHandle):
 	'''If not provided directly by the user, this function retrieves the best BLAST hit's indices.'''
 	
-	blast_result = SearchIO.read(resultHandle, 'blast-tab')
+	with warnings.catch_warnings():
+		warnings.simplefilter("ignore", BiopythonExperimentalWarning)
+		blast_result = SearchIO.read(resultHandle, 'blast-tab')
+
 	print(blast_result[0][0])
 	start = blast_result[0][0].hit_start
 	end = blast_result[0][0].hit_end
@@ -69,6 +76,7 @@ def slice(start, end, genbank, FPoffset, TPoffset):
 def main():
 ###################################################################################################
 # Parse command line arguments
+	import argparse
 	try:
    		parser = argparse.ArgumentParser(
    			description='This script slices entries such as genes or operons out of a genbank, subsetting them as their own file.')
@@ -120,10 +128,9 @@ def main():
 			help='The operon fasta to pull annotations from the provided genbank.')
 		parser.add_argument(
 			'-t',
-			'--no_tidy',
-			action='store_false',
-			default=True,
-			help='Tell the script whether or not to remove the temporary files it generated during processing. On by default. WARNING: removes files based on the "tmp" string.')
+			'--tidy',
+			action='store_true',
+			help='Tell the script whether or not to remove the temporary files it generated during processing. Off by default. WARNING: removes files based on the "tmp" string.')
 		
 		args = parser.parse_args()
 
@@ -141,7 +148,7 @@ def main():
 	blastMode =  args.blastmode
 	outfile   =  args.outfile
 	fasta     =  args.fasta
-	tidy      =  args.no_tidy
+	tidy      =  args.tidy
 
 
 # Main code:
