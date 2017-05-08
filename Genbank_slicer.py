@@ -56,9 +56,7 @@ def runBlast(basename, refFasta, fasta):
 def getIndices(resultHandle):
 	'''If not provided directly by the user, this function retrieves the best BLAST hit's indices.'''
 	
-	with warnings.catch_warnings():
-		warnings.simplefilter("ignore", BiopythonExperimentalWarning)
-		blast_result = SearchIO.read(resultHandle, 'blast-tab')
+	blast_result = SearchIO.read(resultHandle, 'blast-tab')
 
 	print(blast_result[0][0])
 	start = blast_result[0][0].hit_start
