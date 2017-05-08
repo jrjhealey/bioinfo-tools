@@ -17,15 +17,17 @@
 
 # Set up and handle arguments:
 
-from Bio import SeqIO
-from Bio import SearchIO
 import warnings
-from Bio import BiopythonExperimentalWarning
-warnings.simplefilter('ignore', BiopythonExperimentalWarning)
-
 import sys
-import os
 import subprocess
+import os
+from Bio import SeqIO
+
+# Import SearchIO and suppress experimental warning
+from Bio import BiopythonExperimentalWarning
+with warnings.catch_warnings():
+	warnings.simplefilter('ignore', BiopythonExperimentalWarning)
+	from Bio import SearchIO
 
 		
 def convert(basename, genbank):
