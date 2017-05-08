@@ -22,8 +22,6 @@ from Bio import SearchIO
 import subprocess
 import sys
 import argparse
-import traceback
-import warnings
 import os
 		
 def convert(basename, genbank):
@@ -59,11 +57,11 @@ def getIndices(resultHandle):
 		
 	return start, end
 
-def slice(start, end, genbank):
+def slice(start, end, genbank, FPoffset, TPoffset):
 	'''Subset the provided genbank to return the sub record.'''
 	
 	seqObj = SeqIO.read(genbank, 'genbank')
-	subRecord = seqObj[start:end]
+	subRecord = seqObj[start-FPoffset:end+TPoffset]
 
 	return subRecord
 
@@ -94,7 +92,21 @@ def main():
 			'-e',
 			'--end',
 			type=int,
+			default=0,
 			help='Integer base index to slice to.')
+		parser.add_argument(
+			'-F',
+			'--FPoffset',
+			action='store',
+			type=int,
+			default=0,
+			help='If you want to capture regions around the target site, specify the 5\' offset.')
+		parser.add_argument(
+			'-T',
+			'--TPoffset',
+			action='store',
+			type=int,
+			help='If you want to capture regions around the target site, specify the 3\' offset.')
 		parser.add_argument(
 			'-b',
 			'--blastmode',
@@ -115,9 +127,8 @@ def main():
 		
 		args = parser.parse_args()
 
-	except:
+	except NameError:
 		print "An exception occured with argument parsing. Check your provided options."
-		traceback.print_exc()
 	
 	genbank   =  args.genbank
 	fasta     =  args.fasta
@@ -125,6 +136,8 @@ def main():
 	basename  =  os.path.basename(split[0])
 	start     =  args.start
 	end       =  args.end
+	FPoffset  =  args.FPoffset
+	TPoffset  =  args.TPoffset
 	blastMode =  args.blastmode
 	outfile   =  args.outfile
 	fasta     =  args.fasta
@@ -145,7 +158,7 @@ def main():
                 sys.exit(1)
 
 
-	subRecord = slice(start, end, genbank)
+	subRecord = slice(start, end, genbank, FPoffset, TPoffset)
 	
 	
 	if outfile is not None:
