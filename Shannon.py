@@ -1,7 +1,4 @@
 # This script will calculate Shannon entropy from a MSA.
-# The script itself is a modified version of Felix Francier's code
-# which can be found here:
-# https://github.com/ffrancis/Multiple-sequence-alignment-Shannon-s-entropy/blob/master/msa_shannon_entropy012915.py
 
 # Dependencies:
 
