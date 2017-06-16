@@ -1,8 +1,11 @@
 # This script will calculate Shannon entropy from a MSA.
+# The script itself is a modified version of Felix Francier's code
+# which can be found here:
+# https://github.com/ffrancis/Multiple-sequence-alignment-Shannon-s-entropy/blob/master/msa_shannon_entropy012915.py
 
 # Dependencies:
 
-# Biopython, Matplotlib, Math
+# Biopython, Seaborn, Matplotlib, Math
 
 """
 Shannon's entropy equation (latex format):
@@ -46,18 +49,24 @@ def parseArgs():
         parser.add_argument('-a',
                             '--alignment',
                             action='store',
-                            default='None',
+                            required=True,
                             help='The multiple sequence alignment (MSA) in any of the formats supported by Biopython\'s AlignIO.')
         parser.add_argument('-f',
                             '--alnformat',
                             action='store',
-                            default='None',
-                            help='Specify the format of the imput MSA to be passed in to AlignIO.')
+                            default='fasta',
+                            help='Specify the format of the input MSA to be passed in to AlignIO.')
         parser.add_argument('-v',
                             '--verbose',
                             action='count',
                             default=0,
                             help='Verbose behaviour, printing parameters of the script.')
+        parser.add_argument('-m',
+                            '--runningmean',
+                            action='store',
+                            type=int,
+                            default=0,
+                            help='Return the running mean (a.k.a moving average) of the MSAs Shannon Entropy. Makes for slightly smoother plots. Providing the number of points to average over switches this on.')
         parser.add_argument('--makeplot',
                             action='store_true',
                             help='Plot the results via Matplotlib.')
@@ -126,13 +135,30 @@ def shannon_entropy_list_msa(alignment):
 
 def plot(sel, seq_lengths, verbose):
     """"Create a quick plot via matplotlib to visualise the extended spectrum"""
-
-    if verbose > 0: print("Plotting data")
-
-    Xvals = range(0, seq_lengths[0])
     import matplotlib.pyplot as plt
+
+    if verbose > 0: print("Plotting data...")
+
+    Xvals = range(1, seq_lengths[0]+1)
     plt.plot(Xvals, sel)
+    plt.xlabel('MSA Position Index', fontsize=16)
+    plt.ylabel('Shannon Entropy', fontsize=16)
+    
     plt.show()
+
+def running_mean(l, N):
+    sum = 0
+    result = list(0 for x in l)
+
+    for i in range( 0, N ):
+        sum = sum + l[i]
+        result[i] = sum / (i+1)
+
+    for i in range( N, len(l) ):
+        sum = sum - l[i-N] + l[i]
+        result[i] = sum / N
+
+    return result
 
 def main():
     """Compute Shannon Entropy from a provided MSA."""
@@ -145,11 +171,15 @@ def main():
     alnformat = args.alnformat
     verbose = args.verbose
     makeplot = args.makeplot
+    runningmean = args.runningmean
 
 # Start calling functions to do the heavy lifting
 
     alignment, seq_lengths = parseMSA(msa, alnformat, verbose)
     sel = shannon_entropy_list_msa(alignment)
+
+    if runningmean > 0:
+        sel = running_mean(sel, runningmean)
 
     if makeplot is True:
         plot(sel, seq_lengths, verbose)
