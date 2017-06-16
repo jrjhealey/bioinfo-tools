@@ -94,7 +94,9 @@ def parseMSA(msa, alnformat, verbose):
         sys.stderr.write("Your alignment lengths aren't equal. Check your alignment file.")
         sys.exit(1)
 
-    return alignment, list(seq_lengths)
+    index = range(1, list(seq_lengths)[0]+1)
+
+    return alignment, list(seq_lengths), index
 
 ##################################################################
 # Function to calcuate the Shannon's entropy per alignment column
@@ -120,6 +122,7 @@ def shannon_entropy(list_input):
 
     return sh_entropy
 
+
 def shannon_entropy_list_msa(alignment):
     """Calculate Shannon Entropy across the whole MSA"""
 
@@ -130,18 +133,19 @@ def shannon_entropy_list_msa(alignment):
 
     return shannon_entropy_list
 
-def plot(sel, seq_lengths, verbose):
+
+def plot(index, sel, verbose):
     """"Create a quick plot via matplotlib to visualise the extended spectrum"""
     import matplotlib.pyplot as plt
 
     if verbose > 0: print("Plotting data...")
 
-    Xvals = range(1, seq_lengths[0]+1)
-    plt.plot(Xvals, sel)
+    plt.plot(index, sel)
     plt.xlabel('MSA Position Index', fontsize=16)
     plt.ylabel('Shannon Entropy', fontsize=16)
-    
+
     plt.show()
+
 
 def running_mean(l, N):
     sum = 0
@@ -172,14 +176,20 @@ def main():
 
 # Start calling functions to do the heavy lifting
 
-    alignment, seq_lengths = parseMSA(msa, alnformat, verbose)
+    alignment, seq_lengths, index = parseMSA(msa, alnformat, verbose)
     sel = shannon_entropy_list_msa(alignment)
 
     if runningmean > 0:
         sel = running_mean(sel, runningmean)
 
     if makeplot is True:
-        plot(sel, seq_lengths, verbose)
+        plot(index, sel, verbose)
+
+    if verbose > 0: print("Index" + '\t' + "Entropy")
+    for c1, c2 in zip(index, sel):
+
+        print(str(c1) + '\t' + str(c2))
+
 
 
 if __name__ == '__main__':
