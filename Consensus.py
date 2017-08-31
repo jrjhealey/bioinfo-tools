@@ -159,6 +159,9 @@ def brute_force_cons(args, msa_summary):
 								 description='',
 								 name='')
 
+	#TODO
+	# Optionally need to collapse columns which are majority gaps before returning string?
+
 	return consensus_record
 
 def enumerate_string(string):
