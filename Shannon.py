@@ -2,25 +2,20 @@
 
 # Dependencies:
 
-# Biopython, Seaborn, Matplotlib, Math
+# Biopython, Matplotlib, Math
 
 """
 Shannon's entropy equation (latex format):
     H=-\sum_{i=1}^{M} P_i\,log_2\,P_i
-
     Entropy is a measure of the uncertainty of a probability distribution (p1, ..... , pM)
     https://stepic.org/lesson/Scoring-Motifs-157/step/7?course=Bioinformatics-Algorithms&unit=436
-
     Where, Pi is the fraction of nuleotide bases of nuleotide base type i,
     and M is the number of nuleotide base types (A, T, G or C)
-
     H ranges from 0 (only one base/residue in present at that position) to 4.322 (all 20 residues are equally
     represented in that position).
-
     Typically, positions with H >2.0 are considerered variable, whereas those with H < 2 are consider conserved.
     Highly conserved positions are those with H <1.0 (Litwin and Jores, 1992).
     A minimum number of sequences is however required (~100) for H to describe the diversity of a protein family.
-
 """
 import os
 import sys
