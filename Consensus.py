@@ -53,7 +53,7 @@ def parse_args():
 		parser.add_argument('-f',
 							'--format',
 							action='store',
-							default='None',
+							default=None,
 							help='Alignment file format.\nScript will attempt to guess from the extension but may fail.')
 		parser.add_argument('-v',
 							'--verbose',
@@ -85,7 +85,7 @@ def parse_args():
 		parser.add_argument('-t',
 							'--threshold',
 							action='store',
-							type=int,
+							type=float,
 							default=0.7,
 							help='Frequency threshold for inclusion of residue in to consensus, passes through to the dumb_consensus method.')
 		parser.add_argument('-a',
@@ -123,7 +123,7 @@ def guess_ext(args):
 		print("Acceptable formats are those supported by BioPython AlignIO. Comprehensive list at http://biopython.org/wiki/AlignIO. Exiting.")
 		sys.exit(1)
 
-	if args.verbose is True: print("Your file looks like:" + ext)
+	if args.verbose is True: print("Your file looks like: " + ext)
 
 	return ext
 
@@ -183,16 +183,19 @@ def main():
 	"""Call functions to perform MSA analyses."""
 
 	args = parse_args()
+	if args.verbose: print(args)
 
-	if args.format is "None": args.format = guess_ext(args)
+	if args.verbose: print('Format not specified, guessing extension...')
+	if args.format is None: args.format = guess_ext(args)
 	msa = AlignIO.read(args.alignment, args.format)
 	msa_summary = AlignInfo.SummaryInfo(msa)
 
 	# Switch for which action is performed
-
+	if args.verbose: print("Performing the selected task: " + args.task)
 	if args.task == "pssm":
 		pssm = msa_summary.pos_specific_score_matrix()
 		if args.pout is not None:
+			if args.verbose is True: print("Saving PSSM to csv file: " + args.pout)
 			import csv
 			with open(args.pout, 'wb') as f:
 				w = csv.DictWriter(f, pssm[0].keys())
@@ -209,8 +212,10 @@ def main():
 		consensus = brute_force_cons(args, msa_summary)
 
 	if args.cout is not None:
+		if args.verbose is True: print('Saving consensus sequence to file: ' + args.cout)
 		SeqIO.write(consensus, args.cout, 'fasta')
 	else:
+		if args.verbose: print('Consensus sequence:')
 		print(consensus.format('fasta'))
 
 if __name__ == '__main__':
