@@ -41,58 +41,46 @@ def parse_args():
 				usage='python Consensus.py [options] task alignment\nRun with all defaults: python Consensus.py alignment\n\npython Consensus.py -h|--help for full options',
 				formatter_class=RawTextHelpFormatter)
 		parser.add_argument('task',
-							action='store',
-							default='forced',
-							choices=['dumb','forced','pssm'],
-							const='forced',
-							nargs='?',
-							help='Which task to perform.\nForced will randomly resolve ambiguous positions from the most likely choices [Default].')
+				action='store',
+				default='forced',
+				choices=['dumb','forced','pssm'],
+				const='forced',
+				nargs='?',
+				help='Which task to perform.\nForced will randomly resolve ambiguous positions from the most likely choices [Default].')
 		parser.add_argument('alignment',
-							action='store',
-							help='The MSA to analyse.')
+				action='store',
+				help='The MSA to analyse.')
 		parser.add_argument('-f',
-							'--format',
-							action='store',
-							default=None,
-							help='Alignment file format.\nScript will attempt to guess from the extension but may fail.')
+				'--format',
+				action='store',
+				default=None,
+				help='Alignment file format.\nScript will attempt to guess from the extension but may fail.')
 		parser.add_argument('-v',
-							'--verbose',
-							action='store_true',
-							help='Print additional messages to screen. [False].')
+				'--verbose',
+				action='store_true',
+				help='Print additional messages to screen. [False].')
 		parser.add_argument('-c',
-							'--cout',
-							action='store',
-							default=None,
-							help='Output file for consensus sequence.\nPrints to screen in fasta format by default.')
-		# parser.add_argument('-m',
-		# 					'--matrix',
-		# 					action='store',
-		# 					default=None,
-		# 					choices=['dumb', 'forced', 'N'],
-		# 					help=dedent('''\
-		# 					Output the Position Specific Score Matrix of the consensus.
-		# 					Choose a representative sequence for the PSSM axis from:
-		# 					 "dumb" consensus   -  include ambiguous characters.
-		# 					 "forced" consensus -  ambiguous characters are resolved randomly.
-		# 					 "N"                -  some integer specifying a sequence in the alignment.
-		# 					'''))
+				'--cout',
+				action='store',
+				default=None,
+				help='Output file for consensus sequence.\nPrints to screen in fasta format by default.')
 		parser.add_argument('-p',
-							'--pout',
-							action='store',
-							default=None,
-							help='Output file to store the Position Specific Score Matrix if -m|--matrix was given. Else prints to screen.')
+				'--pout',
+				action='store',
+				default=None,
+				help='Output file to store the Position Specific Score Matrix if -m|--matrix was given. Else prints to screen.')
 		# Arguments to BioPython's dumb_consensus
 		parser.add_argument('-t',
-							'--threshold',
-							action='store',
-							type=float,
-							default=0.7,
-							help='Frequency threshold for inclusion of residue in to consensus, passes through to the dumb_consensus method.')
+				'--threshold',
+				action='store',
+				type=float,
+				default=0.7,
+				help='Frequency threshold for inclusion of residue in to consensus, passes through to the dumb_consensus method.')
 		parser.add_argument('-a',
-							'--ambiguous',
-							action='store',
-							default='X',
-							help='The ambiguous character used for dumb consensuses.')
+				'--ambiguous',
+				action='store',
+				default='X',
+				help='The ambiguous character used for dumb consensuses.')
 
 	except NameError:
 		print "An exception occured with argument parsing. Check your provided options."
@@ -130,10 +118,10 @@ def guess_ext(args):
 def dumb_cons(args, msa_summary):
 	"""Compute a dumb consensus sequence using BioPython"""
 	return SeqRecord(msa_summary.dumb_consensus(threshold=args.threshold,
-												ambiguous=args.ambiguous),
-					 id=os.path.basename(args.alignment) + ' consensus',
-					 description='',
-					 name='')
+			ambiguous=args.ambiguous),
+			id=os.path.basename(args.alignment) + ' consensus',
+			description='',
+			name='')
 
 
 def brute_force_cons(args, msa_summary):
@@ -155,9 +143,12 @@ def brute_force_cons(args, msa_summary):
 			consensus += random.choice(possibles)
 
 	consensus_record = SeqRecord(Seq(consensus),
-								 id=os.path.basename(args.alignment) + ' consensus',
-								 description='',
-								 name='')
+					id=os.path.basename(args.alignment) + ' consensus',
+					description='',
+					name='')
+
+	#TODO
+	# Optionally need to collapse columns which are majority gaps before returning string?
 
 	return consensus_record
 
@@ -176,7 +167,6 @@ def enumerate_string(string):
 			keys.append(key)
 
 	return keys
-
 
 
 def main():
