@@ -4,14 +4,12 @@
 
 from Bio import SeqIO
 import sys
-import traceback
-import warnings
 import argparse
 
-def getKeys(keyFile):
+def getKeys(args):
 	"""Turns the input key file into a list. May be memory intensive."""
 
-	with open(keyFile, "r") as kfh:
+	with open(args.keys, "r") as kfh:
 		keys = []
     		for line in kfh:
 			line = line.rstrip('\n')
@@ -57,26 +55,18 @@ def main():
 	
 	except:
 		print('An exception occured with argument parsing. Check your provided options.')
-		traceback.print_exc()
-
-	# Rename args to enable them to be provided to the getKeys function:
-	try:
-		keyFile = args.keys
-		inFile = args.fasta
-		outFile = args.outfile
-	except:
-		print('Variables could not be reassigned properly. Check your provided options.')
-
+		sys.exit(1)
 # Main code:
 	# Call getKeys() to create the list of keys from the provided file:
 	try:
-		keys = getKeys(keyFile)
+		keys = getKeys(args.keys)
 	
 	# If -k/--keys was provided with a string, not a file path, the IO error is used as the indicator
 	# to switch to expecting a string only, rather than a file.
 	except IOError:
 		keys = args.keys
-
+	else:
+		print("Couldn't determine a key from your provided file or string. Double check your file, or ensure your string is quoted correctly.")
 
 	if args.verbose is not False:
 		if args.invert is False:
