@@ -73,11 +73,16 @@ def main():
         from Bio import AlignIO
         msa = AlignIO.read(args.alignment, args.format)
         dists = []
+        seq1_list = []
+        seq2_list = []
         for i in xrange(len(msa)):
             for j in xrange(i+1, len(msa)):
                 dists.append(hamming_distance(str(msa[i].seq), str(msa[j].seq)))
+                seq1_list.append(str(msa[i].seq))
+                seq2_list.append(str(msa[j].seq))
         print("Hamming distances:")
-        print(dists)
+        for dist, seq1, seq2 in zip(dists, seq1_list, seq2_list):
+            print(str(dist) + '\t' + seq1 + '\t' + seq2)
 
     else:
         if args.verbose: print("No MSA found, comparing strings instead.")
