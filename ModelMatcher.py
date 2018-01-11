@@ -19,7 +19,7 @@ import fnmatch
 # Should match the output of: $ chimera --root
 
 
-if not sys.argv[0].endswith == "pychimera":
+if not sys.argv[0].endswith("pychimera"):
     import pychimera
     pychimera.patch_environ()
     pychimera.enable_chimera()
@@ -86,7 +86,7 @@ def main():
 		rmsd_fh.write(ref_mol.name + '\t' + sim_mol.name + '\t' + str(rmsd))
 
  	rc('save {0}_session.py'.format(os.path.join(dirname,os.path.basename(dirname))))
-	print('Session saved.'
+	print('Session saved.')
 	chimera.closeSession()
 	rc('stop now')
 	print('Chimera exited. Results are stored in:' + dirname)

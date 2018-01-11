@@ -9,24 +9,28 @@ import os
 import subprocess
 import sys
 import argparse
-import traceback
-import warnings
 import fnmatch
 import pandas as pd
 from io import StringIO
 
-import pychimera
+# If the script is invoked with a normal python interpreter,
+# the environment must be patched. Not necessary if called
+# with pychimera
+
+# Ensure the shell environment variable $CHIMERADIR is set and
+# points to the root directory of the Chimera installation.
+# Should match the output of: $ chimera --root
+
+
+if not sys.argv[0].endswith("pychimera"):
+    import pychimera
+    pychimera.patch_environ()
+    pychimera.enable_chimera()
 
 import chimera
 from chimera import openModels, Molecule
 from chimera import runCommand as rc
-from MatchMaker import (match,
- 						CP_BEST,
-						GAP_OPEN,
-						GAP_EXTEND,
-						defaults,
-						MATRIX,
-						ITER_CUTOFF)
+from MatchMaker import (match, CP_BEST,	GAP_OPEN,GAP_EXTEND, defaults, MATRIX, ITER_CUTOFF)
 
 # HHSuite output parser/template
 
@@ -53,17 +57,6 @@ def hhparse(hhresult_file):
 
     return top_hit, top_prob, top_eval, top_pval, top_score
 
-# If running using python interpreter and not pychimera:
-# os.environ['CHIMERADIR'] = '/home/wms_joe/Applications/CHIMERA1.11'
-# CHIMERADIR should point to the application root directory.
-# This can be found with:   `chimera --root`
-
-
-# Only needed if running via normal python interpreter, not pychimera
-# pychimera.patch_environ()
-# pychimera.enable_chimera()
-
-
 ##### Main code begins #####
 
 
@@ -82,33 +75,28 @@ def main():
 			action='store',
 			default=None,
 			help='You can specify a different HHpred database (filepath) to use if you offer this parameter. Otherwise it defaults to PDB.')
-
 		parser.add_argument(
 			'-f',
 			'--fasta',
 			action='store',
 			help='The fasta amino acid sequence that corresponds to the simulated structure and the sequence you wish to query.')
-
 		parser.add_argument(
 			'-s',
 			'--simulations',
 			action='store',
 			help='The directory where the protein structure simulations are stored. They must be in PDB format and be named logically.')
-
 		parser.add_argument(
 			'-r',
 			'--rmsd',
 			action='store',
 			default=None,
 			help='The filename to store the RMSD values for each matching.')
-
 		parser.add_argument(
 			'-t',
 			'--threads',
 			action='store',
 			default=def_cpus,
 			help='The number of threads that HHsearch can execute on.')
-
 		parser.add_argument(
 			'-o',
 			'--outdir',
@@ -119,7 +107,7 @@ def main():
 
 	except:
 		print("An exception occured with argument parsing. Check your provided options.")
-		traceback.print_exc()
+		sys.exit(1)
 
   # Acquire HHPred Database
 	if args.database is None:
