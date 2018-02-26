@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eo pipefail
 
 # A small script to generate artemis comparison files (nucleic acid comparison)
 # since all the webservers are apparently defunct!

@@ -42,9 +42,9 @@ def main():
 			help='The 4 character PDB ID for the reference structure to match against.')
 		parser.add_argument(
 			'-s',
-			'--simulations',
+			'--subjects',
 			nargs='+',
-			help='A list of PDB files to match to the reference structure.')
+			help='A folder of PDB files to match to the reference structure.')
 		parser.add_argument(
 			'-o',
 			'--outdir',
@@ -56,6 +56,7 @@ def main():
 		print("An exception occured with argument parsing. Check your provided options.")
 		sys.exit(1)
 
+#TODO: add a switch for a reference PDB provided directly in case of a custom PDB.
 	# Get reference structure from PDB
 	print("\n")
 	print("Beginning Chimera:")
@@ -64,8 +65,8 @@ def main():
 	print("Opened reference structure: " + args.pdb)
 
 	# Open model structures
-	dirname = os.path.dirname(os.path.abspath(args.simulations[0]))
-	for model in args.simulations:
+	dirname = os.path.dirname(os.path.abspath(args.subjects[0]))
+	for model in args.subjects:
 		chimera.openModels.open(model, type="PDB")
 		print("Successfully opened model: " + model)
 

@@ -136,7 +136,7 @@ def main():
 	if args.fasta is not None and args.database is not None:
 		print("\n")
 		print("Running " + args.fasta + " in HHsearch, against " + args.database + " on " + str(args.threads) + " threads.")
-		hhresult_file = './{0}.hhr'.format(basename)
+		hhresult_file = "{}.hhr".format(os.path.splitext(args.fasta)[0])
 		search_cmd = 'hhsearch -dbstrlen 50 -B 1 -b 1 -p 60 -Z 1 -E 1E-03 -nocons -nopred -nodssp -cpu {0} -i {1} -d {2}'.format(args.threads,args.fasta, args.database)
 		print("\n")
 		print("Executing HHsearch with the command:")

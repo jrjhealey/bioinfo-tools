@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eo pipefail
 
 # Script to align fastq reads to a given reference, and output the necessary files sorted etc.
 
@@ -98,7 +99,7 @@ for readelement in ${reads[@]} ; do
 done
 echo "BWA FINISHED ALIGNING EACH READ."
 
-bwa sampe "$reference" "${alignedreads[0]}" "${alignedreads[1]}" "$read1" "$read2" > "${reference%.*}"_aligned.sam
+bwa mem "$reference" "${alignedreads[0]}" "${alignedreads[1]}" "$read1" "$read2" > "${reference%.*}"_aligned.sam
 echo "SAM FILE CREATED"
 
 samtools view -S "${reference%.*}"_aligned.sam -b -o ./"${reference%.*}"_aligned.bam
