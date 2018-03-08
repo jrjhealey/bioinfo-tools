@@ -97,7 +97,7 @@ def guessExt(infile, verbose):
 		type = "abi"
 	elif extension in (".embl"):
 		type = "embl"
-	elif extension in (".clust". ".cw", ".clustal"):
+	elif extension in (".clust", ".cw", ".clustal"):
 		type = "clustal"
 	elif extension in (".fa", ".fasta", ".fas", ".fna", ".faa", ".afasta"):
 		type = "fasta"
@@ -105,9 +105,8 @@ def guessExt(infile, verbose):
 		type = "fastq"
 	elif extension in (".gbk", ".genbank", ".gb"):
 		type = "genbank"
-	elif extension = (".paup", ".nexus"):
+	elif extension in (".paup", ".nexus"):
 		type = nexus
-	elif extension = (".phy", ".phylip"):
 	else:
 		print("Couldn't determine the file type from the extension. Reattempt with the -j|--intype option specified.")
 		sys.exit(1)

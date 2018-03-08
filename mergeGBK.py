@@ -18,6 +18,5 @@ with open(outfile, 'w') as ofh:
 		i.annotations = filename
 		i.name = filename
 		i.accession = filename
-		i.qualifiers["note"] = filename
 		SeqIO.write(i, ofh, 'genbank')
 
