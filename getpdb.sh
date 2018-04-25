@@ -12,10 +12,14 @@ usage: $0 options
 This script retrieves PDB files from the Protein DataBank.
 
 OPTIONS:
-   -h | --help     	   Show this message
-   -i | --ID		   4-letter alphanumeric PDB ID to fetch (e.g. 3izo)
+   -h | --help             Show this message
+   -i | --ID		   4-letter alphanumeric PDB ID(s) to fetch (e.g. 1abc)
+			   To download multiple structures, issue -i each time:
+			     ...  -i 1abc -i 2def -i 3ghi etc...
    -m | --mode		   Which protocol to use to fetch with ("HTTP" or "FTP")
-   -o | --outdir	   Directory to move the PDB to (optional, default = ./)
+   -o | --outdir	   Directory to move the PDB to (optional, default = ./):
+   			   $(pwd)
+
 EOF
 }
 
@@ -40,11 +44,10 @@ for arg in "$@"; do
   esac
 done
 # getopts assigns the arguments to variables
-while getopts "hi:m:o:" OPTION
-do
+while getopts "hi:m:o:" OPTION ; do
 	case $OPTION in
 		i)
-		ID=$OPTARG
+		ID+=($OPTARG)
 		;;
 		m)
 		mode=$OPTARG
@@ -58,6 +61,7 @@ do
 		;;
 	esac
 done
+shift $((OPTIND -1))
 
 if [[ -z $ID ]]
 	then
@@ -73,18 +77,23 @@ if [[ -z "$outdir" ]]
 	outdir=$(pwd)
 	echo "Saving in to ${outdir}"
 fi
+
+echo "The first value of array 'IDs' is $ID"
+echo "The last value of array 'IDs' is ${ID[-1]}"
+echo "The entirety of array 'IDs' is ${ID[@]}"
 #####
 
 # FTP fetch
-if [[ "$mode" == "FTP" ]]
- then
-      wget ftp://ftp.wwpdb.org/pub/pdb/data/structures/all/pdb/pdb${ID}.ent.gz
-      gunzip pdb${ID}.ent.gz &&  mv -v pdb${ID}.ent ${outdir%./}/${ID}.pdb
- else
+for i in "${ID[@]}" ; do
+ if [[ "$mode" == "FTP" ]]
+  then
+      wget ftp://ftp.wwpdb.org/pub/pdb/data/structures/all/pdb/pdb${i}.ent.gz
+      gunzip pdb${i}.ent.gz &&  mv -v pdb${i}.ent ${outdir%./}/${i}.pdb
+  else
  if [[ "$mode" == "HTTP" ]]
- then 
-      wget http://www.rcsb.org/pdb/files/${ID}.pdb.gz
-      gunzip -c ${ID}.pdb.gz > "${outdir%./}"/${ID}.pdb && rm ${ID}.pdb.gz
+  then
+      wget http://www.rcsb.org/pdb/files/${i}.pdb.gz
+      gunzip -c ${i}.pdb.gz > "${outdir%./}"/${i}.pdb && rm ${i}.pdb.gz
+  fi
  fi
-fi
-
+done
