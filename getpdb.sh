@@ -87,12 +87,12 @@ echo "The entirety of array 'IDs' is ${ID[@]}"
 for i in "${ID[@]}" ; do
  if [[ "$mode" == "FTP" ]]
   then
-      wget ftp://ftp.wwpdb.org/pub/pdb/data/structures/all/pdb/pdb${i}.ent.gz
+      wget ftp://ftp.wwpdb.org/pub/pdb/data/structures/all/pdb/pdb${i}.ent.gz || echo "Failed to find a matching PDB entry. Exiting." && exit 1
       gunzip pdb${i}.ent.gz &&  mv -v pdb${i}.ent ${outdir%./}/${i}.pdb
   else
  if [[ "$mode" == "HTTP" ]]
   then
-      wget http://www.rcsb.org/pdb/files/${i}.pdb.gz
+      wget http://www.rcsb.org/pdb/files/${i}.pdb.gz || echo "Failed to find a matching PDB entry. Exiting." && exit 1
       gunzip -c ${i}.pdb.gz > "${outdir%./}"/${i}.pdb && rm ${i}.pdb.gz
   fi
  fi
