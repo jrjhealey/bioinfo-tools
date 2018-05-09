@@ -78,15 +78,13 @@ if [[ -z "$outdir" ]]
 	echo "Saving in to ${outdir}"
 fi
 
-echo "The first value of array 'IDs' is $ID"
-echo "The last value of array 'IDs' is ${ID[-1]}"
-echo "The entirety of array 'IDs' is ${ID[@]}"
-#####
 
-# FTP fetch
+# TODO:
+#  Add logic for retrieval from mmCIF?
 for i in "${ID[@]}" ; do
  if [[ "$mode" == "FTP" ]]
   then
+      i=$(echo "$i" |tr '[:upper:]' '[:lower:]')
       wget ftp://ftp.wwpdb.org/pub/pdb/data/structures/all/pdb/pdb${i}.ent.gz || echo "Failed to find a matching PDB entry. Exiting." && exit 1
       gunzip pdb${i}.ent.gz &&  mv -v pdb${i}.ent ${outdir%./}/${i}.pdb
   else
