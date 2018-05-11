@@ -90,8 +90,7 @@ for i in "${ID[@]}" ; do
   else
  if [[ "$mode" == "HTTP" ]]
   then
-      wget http://www.rcsb.org/pdb/files/${i}.pdb.gz || echo "Failed to find a matching PDB entry. Exiting." && exit 1
-      gunzip -c ${i}.pdb.gz > "${outdir%./}"/${i}.pdb && rm ${i}.pdb.gz
+      wget https://files.rcsb.org/download/${i}.pdb || echo "Failed to find a matching PDB entry. Exiting" && exit 1
   fi
  fi
 done
