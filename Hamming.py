@@ -12,6 +12,9 @@ __title__ = "Hamming.py"
 __license__ = "GPLv3"
 __author_email__ = "J.R.J.Healey@warwick.ac.uk"
 
+#TODO:
+# Add some regex support to the Hamming function to permit any char?
+
 
 def parseArgs():
     """Parse command line arguments"""
