@@ -14,7 +14,7 @@ __author_email__ = "J.R.J.Healey@warwick.ac.uk"
 
 #TODO:
 # Add some regex support to the Hamming function to permit any char?
-
+# Add control/logic for case-sensitivity
 
 def parseArgs():
     """Parse command line arguments"""
