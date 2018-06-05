@@ -27,8 +27,6 @@ It requires the non-standard pandas module.
 
 import os
 import sys
-import traceback
-import warnings
 
 __author__ = "Joe R. J. Healey"
 __version__ = "1.0.0"
@@ -82,6 +80,9 @@ def getFullDesc(hhresult_file,top_hit_full, verbose):
 
 def getDOI(top_hit):
 	"""Query the PDB REST API to get an associated DOI/Publication"""
+	#TODO: This function no longer appears to work. The URL may have changed format...
+	#      to be fixed in future.
+	
 	import requests
 	try:
 		query = requests.get("https://www.ebi.ac.uk/pdbe/api/pdb/entry/publications/" + str(top_hit))
@@ -153,11 +154,12 @@ def parseArgs():
 			'--doi',
 			action='store_true',
 			help='Try to retrieve relevant publications from PDB RESTful API. Warning, this will significantly slow down the processing of results.')
-		args = parser.parse_args()
-		
+		if len(sys.argv) == 1:
+			parser.print_help(sys.stderr)
+			sys.exit(1)		
 	except:
 		print "An exception occured with argument parsing. Check your provided options."
-		traceback.print_exc()
+		
 
 	return parser.parse_args()
 
