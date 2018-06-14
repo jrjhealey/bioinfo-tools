@@ -3,7 +3,7 @@
 # Requires biopython
 
 from Bio import SeqIO
-import sys
+import sys, six
 import argparse
 
 def getKeys(args):
@@ -58,28 +58,26 @@ def main():
 		sys.exit(1)
 # Main code:
 	# Call getKeys() to create the list of keys from the provided file:
-	try:
-		keys = getKeys(args.keys)
-	
-	# If -k/--keys was provided with a string, not a file path, the IO error is used as the indicator
-	# to switch to expecting a string only, rather than a file.
-	except IOError:
+	if isinstance(args.keys, six.string_types):
 		keys = args.keys
 	else:
-		print("Couldn't determine a key from your provided file or string. Double check your file, or ensure your string is quoted correctly.")
-
+		keys = getKeys(args.keys)
+	
 	if args.verbose is not False:
 		if args.invert is False:
-			print('Fetching the following keys from: ' + inFile)
-			for key in keys:
-				print(key)
+			print('Fetching the following keys: ' + args.keys)
+			if isinstance(keys, six.string_types):
+				print(keys)
+			elif isinstance(keys, (list,)):
+				for  key in keys:
+					print(key)
 		else:
-			print('Ignoring the following keys, and retreiving everything else from: ' + inFile)
+			print('Ignoring the following keys, and retreiving everything else from: ' + args.fasta)
 			for key in keys:
 				print(key)
 
 	# Parse in the multifasta and assign an iterable variable:
-        seqIter = SeqIO.parse(inFile, 'fasta')
+        seqIter = SeqIO.parse(args.fasta, 'fasta')
 
 	# For each sequence in the multifasta, check if it's in the keys[] tuple. If so, print it out:
 	for seq in seqIter:
@@ -87,13 +85,13 @@ def main():
 			if seq.id in keys:
 				print(seq.format("fasta"))
 			if args.outfile is not None:
-				SeqIO.write(seq, outFile, "fasta")
+				SeqIO.write(seq, outfile, "fasta")
 		else:
 	# If the --invert/-i flag is given, print all fastas NOT listed in the keyfile
 			if seq.id not in keys:
 				print(seq.format("fasta"))
 			if args.outfile is not None:
-				SeqIO.write(seq, outFile, "fasta")
+				SeqIO.write(seq, outfile, "fasta")
 
 if __name__ == "__main__":
 	main()
