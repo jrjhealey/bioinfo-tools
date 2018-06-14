@@ -9,7 +9,7 @@ import argparse
 def getKeys(args):
 	"""Turns the input key file into a list. May be memory intensive."""
 
-	with open(args.keys, "r") as kfh:
+	with open(args.keyfile, "r") as kfh:
 		keys = []
     		for line in kfh:
 			line = line.rstrip('\n')
@@ -31,10 +31,14 @@ def main():
 			help='The multifasta to search.')
 		parser.add_argument(
 			'-k',
-			'--keys',
+			'--keyfile',
 			action='store',
-			required=True,
-			help='A string provided directly, or a file of header strings to search the multifasta for. Must be exact. Must be one per line.')
+			help='A file of header strings to search the multifasta for. Must be exact. Must be one per line.')
+		parser.add_argument(
+			'-s',
+			'--string',
+			action='store',
+			help='Provide a string to look for directly, instead of a file.')
 		parser.add_argument(
 			'-o',
 			'--outfile',
@@ -58,18 +62,22 @@ def main():
 		sys.exit(1)
 # Main code:
 	# Call getKeys() to create the list of keys from the provided file:
-	if isinstance(args.keys, six.string_types):
-		keys = args.keys
+	
+	if not (args.keyfile or args.string):
+		print('No key source provided. Exiting.')
+		sys.exit(1)
+	elif not args.keyfile:
+		keys = args.string
 	else:
-		keys = getKeys(args.keys)
+		keys = getKeys(args)
 	
 	if args.verbose is not False:
 		if args.invert is False:
-			print('Fetching the following keys: ' + args.keys)
+			print('Fetching the following keys: ' + args.keyfile)
 			if isinstance(keys, six.string_types):
 				print(keys)
 			elif isinstance(keys, (list,)):
-				for  key in keys:
+				for key in keys:
 					print(key)
 		else:
 			print('Ignoring the following keys, and retreiving everything else from: ' + args.fasta)
