@@ -9,7 +9,10 @@ with open(sys.argv[2], 'w') as ofh:
                 for seq_feature in seq_record.features:
                         if seq_feature.type=="CDS":
                                 assert len(seq_feature.qualifiers['translation'])==1
-                                ofh.write(">%s from %s\n%s\n" % (
-                                seq_feature.qualifiers['gene'][0],
-                                seq_record.name,
+                                try:
+					name = seq_feature.qualifiers['gene'][0]
+				except KeyError:
+					name = seq_feature.qualifiers['product'][0]
+                                ofh.write(">%s\n%s\n" % (
+				name,
                                 seq_feature.qualifiers['translation'][0]))
