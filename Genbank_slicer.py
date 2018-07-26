@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # This script is designed to take a genbank file and 'slice out'/'subset'
 # regions (genes/operons etc.) and produce a separate file. This can be
@@ -22,13 +22,35 @@ import sys
 import subprocess
 import os
 import time
-from Bio import SeqIO
+try:
+    from Bio import SeqIO
+except ImportError:
+    msg = """
+Could not import the BioPython module which means it is probably
+not installed, or at least not available in the PYTHONPATH for this 
+particular binary.
+
+If you have conda (recommended) try running:
+
+ $ conda install -c anaconda biopython
+ 
+or, alternatively with python/pip:
+
+ $ python -m pip install biopython
+"""
+    sys.stderr.write(msg)
+    sys.exit(1)
 
 __author__ = "Joe R. J. Healey"
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 __title__ = "Genbank_slicer"
 __license__ = "GPLv3"
 __author_email__ = "J.R.J.Healey@warwick.ac.uk"
+
+#TODO:
+# - Alter the script to slice other sequence types by removing the 
+#   requirement for Genbanks.
+
 
 # Import SearchIO and suppress experimental warning
 from Bio import BiopythonExperimentalWarning
@@ -83,7 +105,13 @@ def getIndices(resultHandle):
 def slice(start, end, genbank, FPoffset, TPoffset):
 	'''Subset the provided genbank to return the sub record.'''
 	
-	seqObj = SeqIO.read(genbank, 'genbank')
+	try:
+            seqObj = SeqIO.read(genbank, 'genbank')
+	except ValueError:
+	    sys.stderr.write("There is more than one sequence in the target sequence file.\
+	                      This script requires that there be only 1 currently, else the retrieved indices are meaningless.\
+	                      Please concatenate the target sequence and try again.")
+	    sys.exit(1)
 	subRecord = seqObj[start-FPoffset:end+TPoffset]
 
 	return subRecord
@@ -163,22 +191,22 @@ def main():
 		args = parser.parse_args()
 
 	except NameError:
-		print "An exception occured with argument parsing. Check your provided options."
+		sys.stderr.write("An exception occured with argument parsing. Check your provided options.")
 	
-	genbank   =  args.genbank
-	fasta     =  args.fasta
-	split     =  os.path.splitext(args.genbank)
-	basename  =  os.path.basename(split[0])
-	start     =  args.start
-	end       =  args.end
-	FPoffset  =  args.FPoffset
-	TPoffset  =  args.TPoffset
-	blastMode =  args.blastmode
-	outfile   =  args.outfile
-	fasta     =  args.fasta
-	tidy      =  args.tidy
-	meta	  =  args.meta
-	verbose   =  args.verbose
+	genbank = args.genbank
+	fasta = args.fasta
+	split = os.path.splitext(args.genbank)
+	basename = os.path.basename(split[0])
+	start = args.start
+	end = args.end
+	FPoffset = args.FPoffset
+	TPoffset = args.TPoffset
+	blastMode = args.blastmode
+	outfile  = args.outfile
+	fasta =  args.fasta
+	tidy = args.tidy
+	meta = args.meta
+	verbose = args.verbose
 
 # Main code:
 	if blastMode is not False and fasta is not None:
@@ -186,11 +214,12 @@ def main():
 		resultHandle = runBlast(basename, refFasta, fasta, verbose)
 		start, end = getIndices(resultHandle)
 	else:
-		if fasta is None:
+		blastMode is not False and if fasta is None:
 			print("No fasta was provided so BLAST mode cannot be used.")
+			sys.exit(1)
       
 	if start is None or end is None:
-        	print('No slice indices have been specified or retrieved from blastout')
+        	sys.stderr.write("No slice indices have been specified or retrieved from blastout.")
                 sys.exit(1)
 
 
@@ -217,7 +246,7 @@ def main():
 	else:
 		print(subRecord.format('genbank'))
 
-	if tidy is True:
+	if blastMode is True and tidy is True:
 		if verbose is True:
 			rm="rm -v ./*tmp*"
 		else:	

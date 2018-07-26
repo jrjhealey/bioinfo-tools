@@ -26,8 +26,8 @@ def get_args():
     try:
         parser = argparse.ArgumentParser(description="Get the distances between nodes in a tree.",
                                      formatter_class=argparse.RawTextHelpFormatter)
-        parser.add_argument('-i','--input', action='store', help='Input tree file.')
-        parser.add_argument('-s', '--schema', action='store', help='Input tree format.')
+        parser.add_argument('-i','--input', action='store', required=True, help='Input tree file.')
+        parser.add_argument('-s', '--schema', action='store', required=True, help='Input tree format.')
         parser.add_argument('-m', '--mode', action='store', choices=['all', 'max'], default='max',
                             help='What distances to return: Largest = \'max\', or All = \'all\'.')
         if len(sys.argv) == 1:
