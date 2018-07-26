@@ -108,8 +108,8 @@ def slice(start, end, genbank, FPoffset, TPoffset):
 	try:
             seqObj = SeqIO.read(genbank, 'genbank')
 	except ValueError:
-	    sys.stderr.write("There is more than one sequence in the target sequence file.\
-	                      This script requires that there be only 1 currently, else the retrieved indices are meaningless.\
+	    sys.stderr.write("There is more than one sequence in the target sequence file. \
+	                      This script requires that there be only 1 currently, else the retrieved indices are meaningless. \
 	                      Please concatenate the target sequence and try again.")
 	    sys.exit(1)
 	subRecord = seqObj[start-FPoffset:end+TPoffset]
