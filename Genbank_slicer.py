@@ -115,8 +115,8 @@ def slice(start, end, genbank, FPoffset, TPoffset):
         seqObj = SeqIO.read(genbank, 'genbank')
     except ValueError:
         sys.stderr.write("There is more than one sequence in the target sequence file. \
-	                      This script requires that there be only 1 currently, else the retrieved indices are meaningless. \
-	                      Please concatenate the target sequence and try again.")
+                          This script requires that there be only 1 currently, else the retrieved indices are meaningless. \
+                          Please concatenate the target sequence and try again.")
         sys.exit(1)
     subRecord = seqObj[start - FPoffset:end + TPoffset]
 
@@ -208,21 +208,18 @@ def main():
     TPoffset = args.TPoffset
     blastMode = args.blastmode
     outfile = args.outfile
-    fasta = args.fasta
     tidy = args.tidy
     meta = args.meta
     verbose = args.verbose
 
     # Main code:
-    if blastMode is not False and fasta is not None:
+    if (blastMode is not False) and (fasta is not None):
         refFasta = convert(basename, genbank)
         resultHandle = runBlast(basename, refFasta, fasta, verbose)
         start, end = getIndices(resultHandle)
-    else:
-        blastMode is not False and
-        if fasta is None:
-            print("No fasta was provided so BLAST mode cannot be used.")
-            sys.exit(1)
+    elif (blastMode is not False) and (fasta is None):
+        sys.stderr.write("No fasta was provided so BLAST mode cannot be used.")
+        sys.exit(1)
 
     if start is None or end is None:
         sys.stderr.write("No slice indices have been specified or retrieved from blastout.")
