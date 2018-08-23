@@ -5,7 +5,7 @@
 
 # TODO:
 # - Create more sophisticated logic for matching IDs/Descriptions/Partial matches etc.
-
+#    - Create a mode variable to encapsulate invert/partial/description/id etc?
 from Bio import SeqIO
 import sys, six
 import argparse
@@ -14,12 +14,7 @@ def getKeys(args):
 	"""Turns the input key file into a list. May be memory intensive."""
 
 	with open(args.keyfile, "r") as kfh:
-		keys = []
-    		for line in kfh:
-			line = line.rstrip('\n')
-			line = line.lstrip('>')
-			keys.append(line)
-
+		keys = [line.rstrip('\n').lstrip('>') for line in kfh]
 	return keys
 
 def main():
