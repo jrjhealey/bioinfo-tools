@@ -1,6 +1,10 @@
+#!/usr/bin/env python
 
 # Extract fasta files by their descriptors stored in a separate file.
 # Requires biopython
+
+# TODO:
+# - Create more sophisticated logic for matching IDs/Descriptions/Partial matches etc.
 
 from Bio import SeqIO
 import sys, six
@@ -86,11 +90,14 @@ def main():
 
 	# Parse in the multifasta and assign an iterable variable:
         seqIter = SeqIO.parse(args.fasta, 'fasta')
-
+	if args.verbose is not False:
+		print("Found Sequences with Descriptors:")
+		for seq in seqIter:
+			print(seq.description)
 	# For each sequence in the multifasta, check if it's in the keys[] tuple. If so, print it out:
 	for seq in seqIter:
 		if args.invert is False:
-			if seq.id in keys:
+			if seq.description in keys:
 				print(seq.format("fasta"))
 			if args.outfile is not None:
 				SeqIO.write(seq, outfile, "fasta")
