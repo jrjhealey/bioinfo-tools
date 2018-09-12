@@ -49,12 +49,13 @@ def parse_mapfile(mapfile):
     return mut_dict
 
 
-def morph(orig, loc, new, mutableseq):
+def morph(orig, loc, new, mutableseq, verbose):
     """Perform actual sequence change (polymorphism only at present)"""
     # Shift location to offset 0-based index
     loc = loc - 1
     assert mutableseq[loc] == orig, "Sequence does not match the mutation file for pre-exising residue. Expected %s , got %s " % (orig, mutableseq[loc]) 
-    print("Performing change: " + orig + ' -> ' + new + ' at location: ' + str(loc) + ' (0 based)')
+    if verbose is True:
+        print("Performing change: " + orig + ' -> ' + new + ' at location: ' + str(loc) + ' (0 based)')
     # Make change
     mutableseq[loc] = new
     # Convert back to regular SeqIO object.
@@ -75,8 +76,9 @@ def main():
     
     # Parse the mutation file (get mutations by sequence)
     mutations = parse_mapfile(args.mutation_file)
-    print("Got mutations:")
-    print(mutations)    
+    if args.verbose is True:
+        print("Got mutations:")
+        print(mutations)    
     # Iterate all sequences and make any substitutions necessary
     for record in SeqIO.parse(args.sequences, 'fasta'):
         mutable = record.seq.tomutable()
@@ -85,14 +87,19 @@ def main():
                 orig = v[0]
                 new = v[-1]
                 loc = int(v[1:-1])
-                newseq = morph(orig, loc, new, mutable)
-                print("Original: " + record.seq)
-                print(str((' ' * int(loc-2+11))) + 'V') # Padded string to show where switch happened (not sure how it'll deal with line wrapping 
-                print("New:      " + newseq)
-                print("Distance: " + str(hamming_distance(str(record.seq), str(newseq))))
-                ofh.write(">%s_%s\n%s\n" % (record.id, v, newseq))
+                newseq = morph(orig, loc, new, mutable, args.verbose)
+                if args.verbose is True:
+                    print("Original: " + record.seq)
+                    print(str((' ' * int(loc-2+11))) + 'V') # Padded string to show where switch happened (not sure how it'll deal with line wrapping 
+                    print("New:      " + newseq)
+                    print("Distance: " + str(hamming_distance(str(record.seq), str(newseq))))
+                if args.outfile is not None:
+                    ofh.write(">%s_%s\n%s\n" % (record.id, v, newseq))
+                if (args.verbose is False):
+                    print(">%s_%s\n%s\n" % (record.id, v, newseq))
 
-    ofh.close()
+    if args.outfile is not None:
+        ofh.close()
     
 if __name__ == '__main__':
     main()
