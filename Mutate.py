@@ -9,7 +9,7 @@ def get_args():
 
     try:
         parser = argparse.ArgumentParser(
-            description='Parse and extract data from the output of MultiGeneBlast.')
+            description='Mutate fasta sequences based on a file of mappings.')
         parser.add_argument('mutation_file', action='store',
                             help='File of mutation mappings like so: "SeqID,X123Y"')
         parser.add_argument('sequences', action='store',
