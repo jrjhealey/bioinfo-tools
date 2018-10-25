@@ -2,7 +2,16 @@
 from __future__ import print_function
 from Bio import SeqIO
 from Bio.Seq import Seq
-import sys, argparse
+from collections import OrderedDict
+import sys
+import argparse
+
+# TODO:
+#  - create some logic to 'group' mutations that will be applied to the same sequence, to
+#    make all switches at once
+#    - This will also probably break the verbose transversion output so the maths will need replacing
+#  - Create the ability to support INDELS (will also require pairwise alignment so that
+#    hamming distances remain meaningful.
 
 def get_args():
     """Parse command line arguments"""
@@ -27,19 +36,36 @@ def get_args():
     return parser.parse_args()
 
 
+class Mutation(object):
+    """A class wrapper for sequence IDs so that duplicate IDs can be used in a dictionary"""
+
+    def __init__(self, name):
+        self.name = name
+
+    def __repr__(self):
+        return "'"+self.name+"'"
+
+    def __str__(self):
+        return self.name
+
+
 def parse_mapfile(mapfile):
     """Return a dict of mapped mutations.
     
     File should resemble:
     
-    SequenceID,A123B
-    SequenceID2,X234Y
+     SequenceID,A123B
+     SequenceID2,X234Y
     
-    Sequence IDs should exactly match the fasta headers
+    Sequence IDs should exactly match the fasta headers, as parsed by BioPython.
+    (">" symbols are optional)
     """
-        
-    with open(mapfile, 'r') as mfh:
-        mut_dict = dict(line.rstrip("\n").lstrip(">").split(",") for line in mfh)
+
+    with open(mapfile, 'r') as handle:
+        mut_dict = OrderedDict()
+        for line in handle:
+            id, change = line.lstrip('>').rstrip('\n').split(',')
+            mut_dict[Mutation(id)] = change
 
     for k,v in mut_dict.items():
         assert v[0].isalpha(), "First character of mutation map is not a valid letter. Got: %s" % v[0]
@@ -55,10 +81,8 @@ def morph(orig, loc, new, mutableseq, verbose):
     loc = loc - 1
     assert mutableseq[loc] == orig, "Sequence does not match the mutation file for pre-exising residue. Expected %s , got %s " % (orig, mutableseq[loc]) 
     if verbose is True:
-        print("Performing change: " + orig + ' -> ' + new + ' at location: ' + str(loc) + ' (0 based)')
-    # Make change
+        print("Performing change: %s -> %s, at location: %d (0 based)" %(orig, new, loc) )
     mutableseq[loc] = new
-    # Convert back to regular SeqIO object.
     return mutableseq
 
 
@@ -83,10 +107,11 @@ def main():
     for record in SeqIO.parse(args.sequences, 'fasta'):
         mutable = record.seq.tomutable()
         for k, v in mutations.items():
-            if k == record.id:
+            if k.name == record.id:
                 orig = v[0]
                 new = v[-1]
                 loc = int(v[1:-1])
+                if args.verbose: print(record.id)               
                 newseq = morph(orig, loc, new, mutable, args.verbose)
                 if args.verbose is True:
                     print("Original: " + record.seq)
