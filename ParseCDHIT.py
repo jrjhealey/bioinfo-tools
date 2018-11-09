@@ -4,7 +4,6 @@ import sys
 import argparse
 from itertools import groupby
 import re
-import os
 
 try:
     from Bio import SeqIO
@@ -79,6 +78,7 @@ def main():
     # Load the fastafile ready to be queried
     idx = SeqIO.index(args.fastafile, 'fasta')
 
+    # Get all ID strings from the cluster file
     ids = [re.findall(r'>(.*)\.{3}', ''.join(g)) for g in groups]
 
     for i, cluster in enumerate(ids):
