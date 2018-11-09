@@ -2,8 +2,9 @@
 
 import sys
 import argparse
-from itertools import groupby
 import re
+import traceback
+from itertools import groupby
 
 try:
     from Bio import SeqIO
@@ -67,16 +68,18 @@ def main():
 
     args = get_args()
 
-    # Add a break/check for duplicate IDs?
-    # if idx.contains_duplicates() == True:
-    #    sys.exit(1)
+    # Load the fastafile ready to be queried
+    try:
+        idx = SeqIO.index(args.fastafile, 'fasta')
+    except ValueError:
+        traceback.print_exc()
+        sys.stderr.write('BioPython caught a duplicate Sequence Identifier in the input fasta.\
+ Biopython\'s index(), and this script absolutely requires that all sequences have unique IDs. It will now exit.\n')
+        sys.exit(1)
 
     # Get all of the sequence IDs from the cluster file
     with open(args.clusterfile, 'r') as cfh:
         groups = [list(group) for key, group in groupby(cfh, lambda line: line.startswith(">Cluster")) if not key]
-
-    # Load the fastafile ready to be queried
-    idx = SeqIO.index(args.fastafile, 'fasta')
 
     # Get all ID strings from the cluster file
     ids = [re.findall(r'>(.*)\.{3}', ''.join(g)) for g in groups]
