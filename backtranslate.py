@@ -6,11 +6,21 @@
 # codon encodings. Note, it doesnt enumerate all individual possibilities (as one
 # might do using itertools.product as this simply takes too long to calculate/print).
 
+# Usage:
+#  $ python3 backtranslate.py <outputformat> <proteinfile> <proteinfileformat>
+# E.g:
+#  $ python3 backtranslate.py pretty myproteins.fasta fasta
+# If the output is wrapping weirdly:
+#  $ python3 backtranslate.py pretty myproteins.fasta fasta |cut -c1-$(stty size </dev/tty | cut -d' ' -f2)
+
 #TODO:
 # - Refactor to classes/structures
 # - Add argparse.
 # - Include different codon tables (create a codon table class to hold them all?)
 #   - Maybe lean on Bio.IUPAC for this?
+# - Figure out screen wrapping. Currenty needs exporting to a file, or trimming with
+#   the construct ( |cut -c1-$(stty size </dev/tty | cut -d' ' -f2) )
+
 
 # Big thanks to the guys on Code Golf and Programming Puzzle SE for the pretty/boxed output
 
