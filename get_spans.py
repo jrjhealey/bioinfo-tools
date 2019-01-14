@@ -59,11 +59,16 @@ def main():
     args = get_args()
     try:
         rec = SeqIO.read(args.infile, args.format)
-    except ValueError:
-        sys.stderr.write('Currently this script is only capable of handling a single contiguous file '
-                         'not multiple records.')
+    except ValueError as err:
+        raise ValueError('Caught: {}.\n'
+                         'Currently this script is only capable of handling a single contiguous file '
+                         'not multiple records.'.format(err))
+    try:
+        start, end = args.range.split(':')
+    except AttributeError as err:
+        raise NameError('Caught: {}.\n'
+                        'Did you specify a range with -r|--range?'.format(err))
 
-    start, end = args.range.split(':')
     if args.verbose: print("Start: " + str(start) + ", End: " + str(end), file=sys.stderr)
 
     desired = set(xrange(int(start),int(end),1))
