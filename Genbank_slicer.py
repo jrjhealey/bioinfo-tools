@@ -49,9 +49,9 @@ __license__ = "GPLv3"
 __author_email__ = "J.R.J.Healey@warwick.ac.uk"
 
 # TODO:
-# - Alter the script to slice other sequence types by removing the 
+# - Alter the script to slice other sequence types by removing the
 #   requirement for Genbanks.
-
+# - Figure out how to deal with multigenbanks
 
 # Import SearchIO and suppress experimental warning
 from Bio import BiopythonExperimentalWarning
@@ -114,10 +114,12 @@ def slice(start, end, genbank, FPoffset, TPoffset):
     try:
         seqObj = SeqIO.read(genbank, 'genbank')
     except ValueError:
-        sys.stderr.write("There is more than one sequence in the target sequence file. \
-                          This script requires that there be only 1 currently, else the retrieved indices are meaningless. \
-                          Please concatenate the target sequence and try again.")
-        sys.exit(1)
+        sys.stderr.write("There is more than one sequence in the target sequence file.\n"
+                         "This script requires that there be only 1 currently, else the retrieved indices are meaningless.\n"
+                         "Please concatenate the target sequence and try again."
+                         "The script will carry on with just the first sequence record.")
+        seqObj = list(SeqIO.parse(genbank, 'genbank'))[0]
+
     subRecord = seqObj[start - FPoffset:end + TPoffset]
 
     return subRecord
