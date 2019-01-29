@@ -1,30 +1,43 @@
 #!/bin/bash
-set -eo pipefail
-tr=$(tput setaf 1) # text = red
-ty=$(tput setaf 3)
-tw=$(tput setaf 7)
-smul=$(tput smul)
-rmul=$(tput rmul)
-df=$(tput sgr0)    # text = reset
 # A small script to generate artemis comparison files (nucleic acid comparison)
 # since all the webservers are apparently defunct!
+set -eo pipefail
+
+if [ -t 1 ] ; then
+  ncols=$(tput colors)
+  if [ -n "$ncols" ] && [ "$ncols" -ge 8 ] ; then
+    bold="$(tput bold)"
+    underline="$(tput smul)"
+    rmunderline="$(tput rmul)"
+    standout="$(tput smso)"
+    black="$(tput setaf 0)"
+    red="$(tput setaf 1)"
+    green="$(tput setaf 2)"
+    yellow="$(tput setaf 3)"
+    blue="$(tput setaf 4)"
+    magenta="$(tput setaf 5)"
+    cyan="$(tput setaf 6)"
+    white="$(tput setaf 7)"
+    default="$(tput sgr0)"
+  fi
+fi
 
 log(){
   # Logging function.
   # Prints to STDOUT in WHITE
-  echo -e >&1 "${tw}${smul}INFO:${rmul} $1${df}"
+  echo -e >&1 "${white}${underline}INFO:${rmunderline} $1${default}"
 }
 
 err(){
   # Error function
   # Prints to STDERR in RED
-  echo -e >&2 "${tr}${smul}ERROR:${rmul} $1${df}"
+  echo -e >&2 "${red}${underline}ERROR:${rmunderline} $1${default}"
 }
 
 warn(){
   # Warning function
   # Prints to STDOUT in YELLOW/ORANGE
-  echo -e >&1 "${ty}${smul}WARNING:${rmul} $1${df}"
+  echo -e >&1 "${yellow}${underline}WARNING:${rmunderline} $1${default}"
 }
 
 usage(){
@@ -37,7 +50,7 @@ for use with the Artemis Comparison tool, when comparing 2 genomes.
 
 A typical invocation might look like:
 
- $ bash ACTgenerator.sh -r reference.fasta -q query.fasta -d databasename -o outputdir -t "T"
+ $ bash ACTgenerator.sh -r reference.fasta -q query.fasta -d databasename -o outputdir -t
 
 OPTIONS:
    -h | --help      Show this message.
@@ -46,8 +59,16 @@ OPTIONS:
    -d | --database  Name of the BLAST database comparison file.
    -o | --outdir    Directory to output all the files to.
    -t | --tidy      Make the script tidy up after itself (T/F).
-                    ${tr}Default F.${df}
+                    ${red}(Default True.)${default}
 
+This script will take 2 input sequences (in FASTA at present) and creates the BLAST
+comparison file that is used by the ARTEMIS Comparison tool (ACT). At the moment, it
+only performs a 1-vs-1 comparison, but may be expanded in the future.
+
+By default, the script requires only input query and reference sequences, with all
+other options taking on default values. The script will also remove any intermediate
+files by default (that includes if not specified. To retain these files provide the -t
+flag with a "False" argument (case insensitive).
 EOF
 }
 
@@ -119,10 +140,10 @@ blastn -db "${outdir%/}"/"${database}" -query "$query" -outfmt 6 -out "${outdir%
 
 log "All finished! The comparison file is called: ${query%.*}_vs_${reference%/*}.act"
 
-if [[ $tidy =~ ^[Tt][Rr][Uu][Ee]$ ]] || [[ $tidy =~ ^[Tt]$ ]] ; then
+if [[ $tidy =~ ^[Tt][Rr][Uu][Ee]$ ]] || [[ $tidy =~ ^[Tt]$ ]] || [[ -z $tidy ]] ; then
   warn "Tidying database files from ${outdir}."
   rm -v "${outdir%/}"/"${database}"*
-elif [[ $tidy =~ ^[Ff][Aa][Ll][Ss][Ee]$ ]] || [[ $tidy =~ ^[Ff]$ ]] || [[ -z $tidy ]] ; then
+elif [[ $tidy =~ ^[Ff][Aa][Ll][Ss][Ee]$ ]] || [[ $tidy =~ ^[Ff]$ ]] ; then
   :   # Do nothing if false-y
 else
  err 'Unrecognised argument to tidy (should be T(rue), F(alse) or empty). Leaving files unmodified.'
