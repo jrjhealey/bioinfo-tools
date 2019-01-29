@@ -23,21 +23,18 @@ if [ -t 1 ] ; then
 fi
 
 log(){
-  # Logging function.
-  # Prints to STDOUT in WHITE
-  echo -e >&1 "${white}${underline}INFO:${rmunderline} $1${default}"
+  # Logging function (prints to STDOUT in WHITE).
+  echo -e >&1 "${white}${underline}INFO:${rmunderline} ${1:-$(</dev/stdin)}${default}"
 }
 
 err(){
-  # Error function
-  # Prints to STDERR in RED
-  echo -e >&2 "${red}${underline}ERROR:${rmunderline} $1${default}"
+  # Error function (prints to STDERR in RED).
+  echo -e >&2 "${red}${underline}ERROR:${rmunderline} ${1:-$(</dev/stdin)}${default}"
 }
 
 warn(){
-  # Warning function
-  # Prints to STDOUT in YELLOW/ORANGE
-  echo -e >&1 "${yellow}${underline}WARNING:${rmunderline} $1${default}"
+  # Warning function (prints to STDOUT in YELLOW/ORANGE).
+  echo -e >&1 "${yellow}${underline}WARNING:${rmunderline} ${1:-$(</dev/stdin)}${default}"
 }
 
 usage(){
@@ -131,7 +128,8 @@ command -v blastn >/dev/null 2>&1 || { err "BLAST+ doesn't appear to be installe
 log "Running makeblastdb:"
 log " -> makeblastdb -in "$reference" -dbtype 'nucl' -title "$database" -out "${outdir%/}"/"${database}" -parse_seqids"
 
-makeblastdb -in "$reference" -dbtype 'nucl' -title "$database" -out "${outdir%/}"/"${database}" -parse_seqids
+makeblastdb -in "$reference" -dbtype 'nucl' -title "$database" -out "${outdir%/}"/"${database}" -parse_seqids | \
+sed '2,$s/^/\         /g' | log
 log "Database created."
 
 # Step 2: Perform the all-vs-all BLAST using the query sequence and reference database.
@@ -142,7 +140,7 @@ log "All finished! The comparison file is called: ${query%.*}_vs_${reference%/*}
 
 if [[ $tidy =~ ^[Tt][Rr][Uu][Ee]$ ]] || [[ $tidy =~ ^[Tt]$ ]] || [[ -z $tidy ]] ; then
   warn "Tidying database files from ${outdir}."
-  rm -v "${outdir%/}"/"${database}"*
+  rm -v "${outdir%/}"/"${database}"* | sed '2,$s/^/\         /g' | warn
 elif [[ $tidy =~ ^[Ff][Aa][Ll][Ss][Ee]$ ]] || [[ $tidy =~ ^[Ff]$ ]] ; then
   :   # Do nothing if false-y
 else
