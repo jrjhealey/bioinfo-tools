@@ -83,7 +83,7 @@ for arg in "$@"; do
  esac
 done
 # getopts assigns the arguments to variables
-while getopts "hr:q:d:o:t:" OPTION ;do
+while getopts "hr:q:d:o:t:" OPTION ; do
   case $OPTION in
     r) reference=$OPTARG ;;
     q) query=$OPTARG     ;;

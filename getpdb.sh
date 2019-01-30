@@ -56,7 +56,7 @@ EOF
 }
 
 # Tolerate long arguments
-for arg in "$@"; do
+for arg in "$@" ; do
   shift
   case "$arg" in
    "--help")    set -- "$@" "-h"   ;;
@@ -72,7 +72,7 @@ while getopts "hi:m:o:" OPTION ; do
    i) ID+=($OPTARG)   ;;  # appends an array rather than set a single variable
    m) mode=$OPTARG    ;;
    o) outdir=$OPTARG  ;;
-   h) usage ; exit 1 ;;
+   h) usage ; exit 1  ;;
   esac
 done
 shift $((OPTIND -1))
