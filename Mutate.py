@@ -15,10 +15,14 @@ import argparse
 
 def get_args():
     """Parse command line arguments"""
+    desc="Mutate fasta sequences based on a file of sequence mappings."
+    epi=("This script takes a mapfile of the form:\n"
+         " SequenceID,A123B\n"
+         " SequenceID,X456Y\n"
+         "And performs substitutions/mutations. At preset it only does one SNP per sequence.\n")
 
     try:
-        parser = argparse.ArgumentParser(
-            description='Mutate fasta sequences based on a file of mappings.')
+        parser = argparse.ArgumentParser(description=desc, epilog=epi, formatter_class=argparse.RawTextHelpFormatter)
         parser.add_argument('mutation_file', action='store',
                             help='File of mutation mappings like so: "SeqID,X123Y"')
         parser.add_argument('sequences', action='store',
@@ -31,7 +35,7 @@ def get_args():
             parser.print_help(sys.stderr)
             exit(1)
     except:
-        sys.stderr.write("An exception occurred with argument parsing. Check your provided options.")
+        sys.stderr.write("An exception occurred with argument parsing. Check your provided options.\n")
 
     return parser.parse_args()
 
@@ -51,12 +55,12 @@ class Mutation(object):
 
 def parse_mapfile(mapfile):
     """Return a dict of mapped mutations.
-    
+
     File should resemble:
-    
+
      SequenceID,A123B
      SequenceID2,X234Y
-    
+
     Sequence IDs should exactly match the fasta headers, as parsed by BioPython.
     (">" symbols are optional)
     """
@@ -81,7 +85,7 @@ def morph(orig, loc, new, mutableseq, verbose):
     loc = loc - 1
     assert mutableseq[loc] == orig, "Sequence does not match the mutation file for pre-exising residue. Expected %s , got %s " % (orig, mutableseq[loc]) 
     if verbose is True:
-        print("Performing change: %s -> %s, at location: %d (0 based)" %(orig, new, loc) )
+        print("Performing change: {} -> {}, at location: {} (0 based)".format(orig, new, loc) )
     mutableseq[loc] = new
     return mutableseq
 
@@ -90,31 +94,31 @@ def hamming_distance(s1, s2):
     """Return the Hamming distance between equal-length sequences"""
     if len(s1) != len(s2):
         raise ValueError("Undefined for sequences of unequal length")
-    return sum(ch1 != ch2 for ch1, ch2 in zip(s1, s2))    
+    return sum(ch1 != ch2 for ch1, ch2 in zip(s1.upper(), s2.upper()))
 
 
 def main():
     args = get_args()
     if args.outfile is not None:
         ofh = open(args.outfile, 'w')
-    
+
     # Parse the mutation file (get mutations by sequence)
     mutations = parse_mapfile(args.mutation_file)
     if args.verbose is True:
         print("Got mutations:")
-        print(mutations)    
+        print(mutations)
     # Iterate all sequences and make any substitutions necessary
     for record in SeqIO.parse(args.sequences, 'fasta'):
-        mutable = record.seq.tomutable()
         for k, v in mutations.items():
+            mutable = record.seq.upper().tomutable()
             if k.name == record.id:
                 orig = v[0]
                 new = v[-1]
                 loc = int(v[1:-1])
-                if args.verbose: print(record.id)               
+                if args.verbose: print(record.id)
                 newseq = morph(orig, loc, new, mutable, args.verbose)
                 if args.verbose is True:
-                    print("Original: " + record.seq)
+                    print("Original: " + record.seq.upper())
                     print(str((' ' * int(loc-2+11))) + 'V') # Padded string to show where switch happened (not sure how it'll deal with line wrapping 
                     print("New:      " + newseq)
                     print("Distance: " + str(hamming_distance(str(record.seq), str(newseq))))
@@ -125,6 +129,6 @@ def main():
 
     if args.outfile is not None:
         ofh.close()
-    
+
 if __name__ == '__main__':
     main()
