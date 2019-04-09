@@ -74,12 +74,12 @@ def main():
             if seq.id in keys:
                 print(seq.format("fasta"))
                 if args.outfile is not None:
-                    SeqIO.write(seq, outfile, "fasta")
+                    SeqIO.write(seq, args.outfile, "fasta")
         elif args.invert is True:
             if seq.id not in keys:
                 print(seq.format("fasta"))
                 if args.outfile is not None:
-                    SeqIO.write(seq, outfile, "fasta")
+                    SeqIO.write(seq, args.outfile, "fasta")
 
 if __name__ == "__main__":
     main()
