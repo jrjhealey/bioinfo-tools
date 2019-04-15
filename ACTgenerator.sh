@@ -96,7 +96,8 @@ done
 
 # If no args, show help
 if [[ $# -eq 0 ]] ; then
-    usage ; exit 1
+    usage
+    exit 1
 fi
 
 if [[ -z $reference ]]; then
@@ -133,10 +134,10 @@ sed '2,$s/^/\         /g' | log
 log "Database created."
 
 # Step 2: Perform the all-vs-all BLAST using the query sequence and reference database.
-log " -> blastn -db "${outdir%/}"/"${database}" -query "$query" -outfmt 6 -out "${outdir%/}"/"${query%.*}"_vs_"${reference%.*}".act"
-blastn -db "${outdir%/}"/"${database}" -query "$query" -outfmt 6 -out "${outdir%/}"/"${query%.*}"_vs_"${reference%.*}".act
+log " -> blastn -db "${outdir%/}"/"${database}" -query "$query" -outfmt 6 -out "${outdir%/}"/"${reference%.*}"_vs_"${query%.*}".act"
+blastn -db "${outdir%/}"/"${database}" -query "$query" -outfmt 6 -out "${outdir%/}"/"${reference%.*}"_vs_"${query%.*}".act
 
-log "All finished! The comparison file is called: ${query%.*}_vs_${reference%/*}.act"
+log "All finished! The comparison file is called: ${reference%.*}_vs_${query%.*}.act"
 
 if [[ $tidy =~ ^[Tt][Rr][Uu][Ee]$ ]] || [[ $tidy =~ ^[Tt]$ ]] || [[ -z $tidy ]] ; then
   warn "Tidying database files from ${outdir}."
