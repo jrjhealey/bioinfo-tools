@@ -177,7 +177,7 @@ def main():
     top_hit, top_hit_full, top_prob, top_eval, top_pval, top_score = hhparse(hhresult_file, verbose)
     full_desc = getFullDesc(hhresult_file, top_hit_full, verbose)
 
-    row = "\t".join([basename, top_hit, top_hit_full, str(top_prob), str(top_eval), str(top_pval), str(top_score), full_desc])
+    row = "\t".join([basename, top_hit, top_hit_full, str(top_prob), str(top_eval), str(top_pval), str(top_score), full_desc]) + "\n"
 
     if args.doi is True:
         doi = getDOI(top_hit)
