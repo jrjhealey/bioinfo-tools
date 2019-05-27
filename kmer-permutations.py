@@ -1,5 +1,5 @@
 # A basic, and pretty fast (for python) way of generating all kmers of length x (only argument)
-'''
+"""
 Some speed benchmarks:
 $ for i in {1..10..2} ; do
     echo "k =" $i
@@ -30,12 +30,14 @@ k = 9
 real    0m0.519s
 user    0m0.504s
 sys    0m0.016s
-'''
+"""
 
 import sys
 import itertools
 
-combinations = itertools.product(*itertools.repeat(['A','T','C','G'], int(sys.argv[1])))
+combinations = itertools.product(
+    *itertools.repeat(["A", "T", "C", "G"], int(sys.argv[1]))
+)
 for i, k in enumerate(combinations):
-#    print('>Kmer_' + str(i) + '\n' + ''.join(k) )
-     print(''.join(k))
+    #    print('>Kmer_' + str(i) + '\n' + ''.join(k) )
+    print("".join(k))

@@ -34,7 +34,9 @@ __author_email__ = "jrj.healey@gmail.com"
 
 def get_args():
     """Parse command line arguments"""
-    desc = """Retrieve cluster sequences from the result of CD-HIT using the .clstr file"""
+    desc = (
+        """Retrieve cluster sequences from the result of CD-HIT using the .clstr file"""
+    )
     epi = """Return the sequences for each cluster defined by a run of CD-HIT.
              A typical CD-HIT run would look like:
              
@@ -48,16 +50,22 @@ def get_args():
 
     try:
         parser = argparse.ArgumentParser(description=desc, epilog=epi)
-        parser.add_argument('clusterfile', action='store',
-                            help='CD-HIT output file (ends in ".clstr").')
-        parser.add_argument('fastafile', action='store',
-                            help='CD-HIT input file of sequences (a multifasta).')
+        parser.add_argument(
+            "clusterfile", action="store", help='CD-HIT output file (ends in ".clstr").'
+        )
+        parser.add_argument(
+            "fastafile",
+            action="store",
+            help="CD-HIT input file of sequences (a multifasta).",
+        )
         if len(sys.argv) == 1:
             parser.print_help(sys.stderr)
             sys.exit(1)
 
     except NameError:
-        sys.stderr.write("An exception occurred with argument parsing. Check your provided options.")
+        sys.stderr.write(
+            "An exception occurred with argument parsing. Check your provided options."
+        )
         sys.exit(1)
 
     return parser.parse_args()
@@ -70,26 +78,33 @@ def main():
 
     # Load the fastafile ready to be queried
     try:
-        idx = SeqIO.index(args.fastafile, 'fasta')
+        idx = SeqIO.index(args.fastafile, "fasta")
     except ValueError:
         traceback.print_exc()
-        sys.stderr.write('BioPython caught a duplicate Sequence Identifier in the input fasta.\
- Biopython\'s index(), and this script absolutely requires that all sequences have unique IDs. It will now exit.\n')
+        sys.stderr.write(
+            "BioPython caught a duplicate Sequence Identifier in the input fasta.\
+ Biopython's index(), and this script absolutely requires that all sequences have unique IDs. It will now exit.\n"
+        )
         sys.exit(1)
 
     # Get all of the sequence IDs from the cluster file
-    with open(args.clusterfile, 'r') as cfh:
-        groups = [list(group) for key, group in groupby(cfh, lambda line: line.startswith(">Cluster")) if not key]
+    with open(args.clusterfile, "r") as cfh:
+        groups = [
+            list(group)
+            for key, group in groupby(cfh, lambda line: line.startswith(">Cluster"))
+            if not key
+        ]
 
     # Get all ID strings from the cluster file
-    ids = [re.findall(r'>(.*)\.{3}', ''.join(g)) for g in groups]
+    ids = [re.findall(r">(.*)\.{3}", "".join(g)) for g in groups]
 
     for i, cluster in enumerate(ids):
         print("Parsing Cluster %s, with IDs:" % i)
         print(cluster)
-        with open('Cluster_'+str(i)+'.fasta', 'w') as ofh:
+        with open("Cluster_" + str(i) + ".fasta", "w") as ofh:
             for identifier in cluster:
-                ofh.write(idx[identifier].format('fasta'))
+                ofh.write(idx[identifier].format("fasta"))
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

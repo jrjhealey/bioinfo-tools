@@ -30,26 +30,54 @@ or, alternatively with python/pip:
     sys.stderr.write(msg)
     sys.exit(1)
 
+
 def get_args():
     """Parse command line arguments"""
     desc = """Probe sequence spans for features."""
     epi = """Interrogate an input sequence for any features that fall within user defined ranges."""
 
     try:
-        parser = argparse.ArgumentParser(description=desc, epilog=epi, prog='get_spans.py')
-        parser.add_argument('-v', '--verbose', action='store_true', help='Verbose behaviour (extra information).')
-        parser.add_argument('-i', '--infile', action='store', help='Input sequence file.')
-        parser.add_argument('-f', '--format', action='store', default='genbank', help='The format of the input file.')
-        parser.add_argument('-r', '--range', action='store', help='The range of interest (specified as start:stop).')
-        parser.add_argument('-t', '--type', action='store', default='CDS',
-                            help='Restrict feature detection to just this type of feature.')
+        parser = argparse.ArgumentParser(
+            description=desc, epilog=epi, prog="get_spans.py"
+        )
+        parser.add_argument(
+            "-v",
+            "--verbose",
+            action="store_true",
+            help="Verbose behaviour (extra information).",
+        )
+        parser.add_argument(
+            "-i", "--infile", action="store", help="Input sequence file."
+        )
+        parser.add_argument(
+            "-f",
+            "--format",
+            action="store",
+            default="genbank",
+            help="The format of the input file.",
+        )
+        parser.add_argument(
+            "-r",
+            "--range",
+            action="store",
+            help="The range of interest (specified as start:stop).",
+        )
+        parser.add_argument(
+            "-t",
+            "--type",
+            action="store",
+            default="CDS",
+            help="Restrict feature detection to just this type of feature.",
+        )
 
         if len(sys.argv) == 1:
             parser.print_help(sys.stderr)
             sys.exit(1)
 
     except NameError:
-        sys.stderr.write("An exception occurred with argument parsing. Check your provided options.")
+        sys.stderr.write(
+            "An exception occurred with argument parsing. Check your provided options."
+        )
         sys.exit(1)
 
     return parser.parse_args()
@@ -60,21 +88,27 @@ def main():
     try:
         rec = SeqIO.read(args.infile, args.format)
     except ValueError as err:
-        raise ValueError('Caught: {}.\n'
-                         'Currently this script is only capable of handling a single contiguous file '
-                         'not multiple records.'.format(err))
+        raise ValueError(
+            "Caught: {}.\n"
+            "Currently this script is only capable of handling a single contiguous file "
+            "not multiple records.".format(err)
+        )
     try:
-        start, end = args.range.split(':')
+        start, end = args.range.split(":")
     except AttributeError as err:
-        raise NameError('Caught: {}.\n'
-                        'Did you specify a range with -r|--range?'.format(err))
+        raise NameError(
+            "Caught: {}.\n" "Did you specify a range with -r|--range?".format(err)
+        )
 
-    if args.verbose: print("Start: " + str(start) + ", End: " + str(end), file=sys.stderr)
+    if args.verbose:
+        print("Start: " + str(start) + ", End: " + str(end), file=sys.stderr)
 
-    desired = set(xrange(int(start),int(end),1))
+    desired = set(xrange(int(start), int(end), 1))
     for feat in rec.features:
         if feat.type == args.type:
-            span = set(xrange(feat.location._start.position, feat.location._end.position))
+            span = set(
+                xrange(feat.location._start.position, feat.location._end.position)
+            )
             if span & desired:
                 print(feat)
 
