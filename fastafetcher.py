@@ -135,7 +135,7 @@ def main():
                     print(seq.format("fasta"))
                     to_write.append(seq)
             elif args.method == "partial":
-                if any(key not in seq.description for key in keys):
+                if all(key not in seq.description for key in keys):
                     print(seq.format("fasta"))
                     to_write.append("fasta")
 
