@@ -7,7 +7,7 @@
 # - Create more sophisticated logic for matching IDs/Descriptions/Partial matches etc.
 #    - Create a mode variable to encapsulate invert/partial/description/id etc?
 from Bio import SeqIO
-import sys, six
+import sys
 import argparse
 
 
@@ -112,36 +112,35 @@ def main():
             for key in keys:
                 sys.stderr.write(key + "\n")
         sys.stderr.write(
-            "------------------------------------------------------------\n"
+            "-" * 80 + "\n"
         )
 
     # Parse in the multifasta and assign an iterable variable:
     to_write = []
-    for seq in SeqIO.parse(args.fasta, "fasta"):
+    for rec in SeqIO.parse(args.fasta, "fasta"):
         if args.invert is False:
             if args.method == "exact":
-                if seq.id in keys:
-                    print(seq.format("fasta"))
-                    to_write.append(seq)
+                if rec.id in keys:
+                    print(rec.format("fasta"))
+                    to_write.append(rec)
 
             elif args.method == "partial":
-                if any(key in seq.description for key in keys):
-                    print(seq.format("fasta"))
-                    to_write.append(seq)
+                if any(key in rec.description for key in keys):
+                    print(rec.format("fasta"))
+                    to_write.append(rec)
 
         elif args.invert is True:
             if args.method == "exact":
-                if seq.id not in keys:
-                    print(seq.format("fasta"))
-                    to_write.append(seq)
+                if rec.id not in keys:
+                    print(rec.format("fasta"))
+                    to_write.append(rec)
             elif args.method == "partial":
-                if all(key not in seq.description for key in keys):
-                    print(seq.format("fasta"))
-                    to_write.append("fasta")
+                if all(key not in rec.description for key in keys):
+                    print(rec.format("fasta"))
+                    to_write.append(rec)
 
     if args.outfile:
-        for rec in to_write:
-            SeqIO.write(rec, args.outfile, "fasta")
+        SeqIO.write(to_write, args.outfile, "fasta")
 
 if __name__ == "__main__":
     main()
