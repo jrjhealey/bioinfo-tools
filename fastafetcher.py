@@ -35,7 +35,7 @@ def get_args():
             "-k",
             "--keyfile",
             action="store",
-            help="A file of header strings to search the multifasta for. Must be exact. Must be one per line.",
+            help="A file of header strings to search the multifasta for. Must be one per line.",
         )
         parser.add_argument(
             "-s",
@@ -62,6 +62,16 @@ def get_args():
             action="store_true",
             help="Invert the search, and retrieve all sequences NOT specified in the keyfile.",
         )
+        parser.add_argument(
+           "-m",
+           "--method",
+           action="store",
+           choices=["exact", "partial"],
+           default="exact",
+           help="Search the headers as exact matches, or as partial substring matches. "
+                "The latter is dangerous, as headers may be matched twice, so be sure "
+                "your headers/keys are unique to their respective sequences."
+       )
 
         if len(sys.argv) == 1:
             parser.print_help(sys.stderr)
@@ -106,18 +116,32 @@ def main():
         )
 
     # Parse in the multifasta and assign an iterable variable:
+    to_write = []
     for seq in SeqIO.parse(args.fasta, "fasta"):
         if args.invert is False:
-            if seq.id in keys:
-                print(seq.format("fasta"))
-                if args.outfile is not None:
-                    SeqIO.write(seq, args.outfile, "fasta")
-        elif args.invert is True:
-            if seq.id not in keys:
-                print(seq.format("fasta"))
-                if args.outfile is not None:
-                    SeqIO.write(seq, args.outfile, "fasta")
+            if args.method == "exact":
+                if seq.id in keys:
+                    print(seq.format("fasta"))
+                    to_write.append(seq)
 
+            elif args.method == "partial":
+                if any(key in seq.description for key in keys):
+                    print(seq.format("fasta"))
+                    to_write.append(seq)
+
+        elif args.invert is True:
+            if args.method == "exact":
+                if seq.id not in keys:
+                    print(seq.format("fasta"))
+                    to_write.append(seq)
+            elif args.method == "partial":
+                if any(key not in seq.description for key in keys):
+                    print(seq.format("fasta"))
+                    to_write.append("fasta")
+
+    if args.outfile:
+        for rec in to_write:
+            SeqIO.write(rec, args.outfile, "fasta")
 
 if __name__ == "__main__":
     main()
