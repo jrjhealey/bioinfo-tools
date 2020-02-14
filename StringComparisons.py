@@ -65,7 +65,7 @@ def get_args():
             "--kmer",
             type=int,
             default=5,
-            help='Kmer length for use with method = "cosine".',
+            help="Kmer length for use with method = 'cosine'.",
         )
         parser.add_argument(
             "-A",
@@ -113,10 +113,10 @@ def hamming_distance(s1, s2):
 
 
 def percent_id(s1, s2):
-    """"Return the percentage identity between two strings.
+    """Return the percentage identity between two strings.
        Strings must be the same length or aligned to the same length for the
        underlying Hamming Distance calculation to work.
-   """
+    """
     try:
         hd = hamming_distance(s1, s2)
     except ValueError:
@@ -149,7 +149,8 @@ def levenshtein_distance(s1, s2):
 
 
 def cosine_distance(s1, s2, k):
-    """Compute the cosine difference of the strings as kmer vectors"""
+    """Compute the cosine difference of the strings as kmer vectors
+    """
     import re, math
     from collections import Counter
 
@@ -171,7 +172,8 @@ def cosine_distance(s1, s2, k):
 
 
 def apply_method(method, s1, s2, k):
-    """Case switch for the selected method"""
+    """Case switch for the selected method
+    """
     return {
         "hamming": partial(hamming_distance, s1, s2),
         "cosine": partial(cosine_distance, s1, s2, k),
@@ -181,7 +183,8 @@ def apply_method(method, s1, s2, k):
 
 
 def main():
-    """Compute distances from a provided MSA or pair of strings."""
+    """Compute distances from a provided MSA or pair of strings.
+    """
 
     args = get_args()
 
