@@ -53,12 +53,12 @@ def get_args():
             "-m",
             "--method",
             action="store",
-            choices=["hamming", "cosine", "levenshtein", "percent_id"],
+            choices=["hamming", "cosine", "levenshtein", "percent_id", "jaccard"],
             default="levenshtein",
             metavar="METHOD",
-            help="What type of string comparison measure to return"
-            "{hamming|cosine|levenshtein} [default = levenshtein]"
-            "If cosine is chosen, an optional kmer length is needed via -k|--kmer",
+            help=("What type of string comparison measure to return"
+                  "{hamming|cosine|levenshtein} [default = levenshtein]"
+                  "If jaccard/cosine is chosen, an optional kmer length is needed via -k|--kmer"),
         )
         parser.add_argument(
             "-k",
@@ -148,16 +148,17 @@ def levenshtein_distance(s1, s2):
     return previous_row[-1]
 
 
+def to_kmer_vector(s1, s2, k):
+    """Convert a 'sentence' (DNA sequence) in to kmer 'words'
+    """
+    kmers = re.compile("(?=(\w{%s}))" % k)
+    return Counter(kmers.findall(s1)), Counter(kmers.findall(s2))
+
+
 def cosine_distance(s1, s2, k):
     """Compute the cosine difference of the strings as kmer vectors
     """
-    import re, math
-    from collections import Counter
-
-    # Convert DNA "sentence" to 'word' (kmer) vector
-    kmers = re.compile("(?=(\w{%s}))" % k)
-    vec1 = Counter(kmers.findall(s1))
-    vec2 = Counter(kmers.findall(s2))
+    vec1, vec2 = to_kmer_vector(s1, s2, k)
 
     intersection = set(vec1.keys()) & set(vec2.keys())
     numerator = sum([vec1[x] * vec2[x] for x in intersection])
@@ -171,12 +172,22 @@ def cosine_distance(s1, s2, k):
         return float(numerator) / denominator
 
 
+def jaccard_similarity(s1, s2, k):
+    """Compute the Jaccard similarity of the sequence as kmer vectors
+    """
+    vec1, vec2 = to_kmer_vector(s1, s2, k)
+    set1 = set(vec1.keys())
+    set2 = set(vec2.keys())
+    return len(set1.intersection(set2)) / len(set1.union(set2))
+
+
 def apply_method(method, s1, s2, k):
     """Case switch for the selected method
     """
     return {
         "hamming": partial(hamming_distance, s1, s2),
         "cosine": partial(cosine_distance, s1, s2, k),
+        "jaccard": partial(jaccard_similarity, s1, s2, k),
         "levenshtein": partial(levenshtein_distance, s1, s2),
         "percent_id": partial(percent_id, s1, s2),
     }[method]()
@@ -204,8 +215,11 @@ def main():
                 )
                 seq1_list.append(str(msa[i].seq))
                 seq2_list.append(str(msa[j].seq))
+
+        if args.verbose:
+            sys.stderr.write(args.method + ":")
         for dist, seq1, seq2 in zip(dists, seq1_list, seq2_list):
-            print(str(dist) + "\t" + seq1 + "\t" + seq2)
+            print("\t".join([str(dist), seq1, seq2]))
         if args.average:
             print(
                 "Average pairwise similarity between MSA: {}".format(
