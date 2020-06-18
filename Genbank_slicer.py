@@ -263,12 +263,14 @@ def main():
     # 			["data_file_division"] e.g. BCT, PLN, UNK
     # 			["organism"]
     # 			["topology"]
-
+    
     if outfile is not None:
-        directory = os.path.dirname(outfile)
+        # Create outdir if it doesn't exist
+        outdir = outfile.rsplit('/',1)[0] # Use `/` in path names, even on Windows
+        directory = os.path.dirname(outdir)
         if not os.path.exists(directory):
             os.makedirs(directory)
-
+        # Write outfile to outdir in .gbk format
         SeqIO.write(subRecord, outfile, "genbank")
     else:
         print(subRecord.format("genbank"))
