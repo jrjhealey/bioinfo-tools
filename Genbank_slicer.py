@@ -265,6 +265,10 @@ def main():
     # 			["topology"]
 
     if outfile is not None:
+        directory = os.path.dirname(outfile)
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
         SeqIO.write(subRecord, outfile, "genbank")
     else:
         print(subRecord.format("genbank"))
