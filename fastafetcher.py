@@ -15,7 +15,11 @@ def get_keys(args):
     """Turns the input key file into a list. May be memory intensive."""
 
     with open(args.keyfile, "r") as kfh:
-        keys = [line.rstrip("\n").lstrip(">") for line in kfh]
+        # Store keys as a set for faster lookup
+        if args.method == "exact":
+            keys = set([line.rstrip("\n").lstrip(">") for line in kfh])
+        else:
+            keys = [line.rstrip("\n").lstrip(">") for line in kfh]
     return keys
 
 
@@ -48,6 +52,7 @@ def get_args():
             "--outfile",
             action="store",
             default=None,
+            required=True,
             help="Output file to store the new fasta sequences in. Just prints to screen by default.",
         )
         parser.add_argument(
@@ -116,31 +121,27 @@ def main():
         )
 
     # Parse in the multifasta and assign an iterable variable:
-    to_write = []
-    for rec in SeqIO.parse(args.fasta, "fasta"):
-        if args.invert is False:
-            if args.method == "exact":
-                if rec.id in keys:
-                    print(rec.format("fasta"))
-                    to_write.append(rec)
+    # writing directly to outfile, as storing results increases
+    # both runtime and memory footprint
+    with open(args.outfile, 'w') as f:
+        for rec in SeqIO.parse(args.fasta, "fasta"):
+            if args.invert is False:
+                if args.method == "exact":
+                    if rec.id in keys:
+                        f.write(rec.format('fasta'))
 
-            elif args.method == "partial":
-                if any(key in rec.description for key in keys):
-                    print(rec.format("fasta"))
-                    to_write.append(rec)
+                elif args.method == "partial":
+                    if any(key in rec.description for key in keys):
+                        f.write(rec.format('fasta'))
 
-        elif args.invert is True:
-            if args.method == "exact":
-                if rec.id not in keys:
-                    print(rec.format("fasta"))
-                    to_write.append(rec)
-            elif args.method == "partial":
-                if all(key not in rec.description for key in keys):
-                    print(rec.format("fasta"))
-                    to_write.append(rec)
+            elif args.invert is True:
+                if args.method == "exact":
+                    if rec.id not in keys:
+                        f.write(rec.format('fasta'))
+                elif args.method == "partial":
+                    if all(key not in rec.description for key in keys):
+                        f.write(rec.format('fasta'))
 
-    if args.outfile:
-        SeqIO.write(to_write, args.outfile, "fasta")
 
 if __name__ == "__main__":
     main()
